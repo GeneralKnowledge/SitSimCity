@@ -105,13 +105,13 @@ def _day_shift_schedule(
 
     if overworked:
         entries.append(ScheduleEntry(leave_work, Activity.SLEEP, person.home_id))
-        notes.append("Long day — straight home")
+        notes.append(_plan_phrase(world, person, "plan_long_day_home"))
         _nudge_habit(person, "home")
     else:
         evening = _decide_evening(world, person, rng)
         if evening is None:
             entries.append(ScheduleEntry(leave_work, Activity.SLEEP, person.home_id))
-            notes.append("Straight home after work")
+            notes.append(_plan_phrase(world, person, "plan_straight_home"))
             _nudge_habit(person, "home")
         else:
             activity, target_id, duration, label, habit_key, visit_id = evening
@@ -124,11 +124,18 @@ def _day_shift_schedule(
                 person.favorite_visit_id = visit_id
 
     if has_circumstance(person, CircumstanceKind.RECENTLY_MOVED):
-        notes.insert(0, "Settling into new neighbourhood")
+        notes.insert(0, _plan_phrase(world, person, "plan_settling"))
 
     person.plan_notes = notes
     entries.sort(key=lambda e: e.minute_of_day)
     return entries
+
+
+def _plan_phrase(world: World, person: Person, key: str) -> str:
+    from sim.systems.chronicle import pick_phrase
+
+    rng = make_rng(world.seed, f"chronicle-plan-d{world.clock.day}-p{person.id}-{key}")
+    return pick_phrase(rng, key)
 
 
 def _evening_shift_schedule(
@@ -142,7 +149,7 @@ def _evening_shift_schedule(
     if overworked:
         leave_home -= 20
         leave_work = min(leave_work + 45, 23 * 60)
-    notes: list[str] = ["Evening shift"]
+    notes: list[str] = [_plan_phrase(world, person, "plan_evening_shift")]
     wake = 8 * 60 + min(person.wake_offset_minutes, 45)
     entries: list[ScheduleEntry] = [
         ScheduleEntry(0, Activity.SLEEP, person.home_id),
@@ -164,14 +171,14 @@ def _evening_shift_schedule(
 
     if overworked:
         entries.append(ScheduleEntry(leave_work, Activity.SLEEP, person.home_id))
-        notes.append("Long evening — straight home")
+        notes.append(_plan_phrase(world, person, "plan_long_day_home"))
         _nudge_habit(person, "home")
     else:
         # After late shift: short stop or home — no long pub nights.
         post = _decide_post_evening_shift(world, person, rng)
         if post is None:
             entries.append(ScheduleEntry(leave_work, Activity.SLEEP, person.home_id))
-            notes.append("Straight home after work")
+            notes.append(_plan_phrase(world, person, "plan_straight_home"))
             _nudge_habit(person, "home")
         else:
             activity, target_id, duration, label, habit_key = post
@@ -182,7 +189,7 @@ def _evening_shift_schedule(
             _nudge_habit(person, habit_key)
 
     if has_circumstance(person, CircumstanceKind.RECENTLY_MOVED):
-        notes.insert(0, "Settling into new neighbourhood")
+        notes.insert(0, _plan_phrase(world, person, "plan_settling"))
 
     person.plan_notes = notes
     entries.sort(key=lambda e: e.minute_of_day)
@@ -224,6 +231,7 @@ def _overlaps_block(
 
 
 def _sick_day_schedule(person: Person) -> list[ScheduleEntry]:
+    # No world seed here — keep a fixed soft line.
     person.plan_notes = ["Home sick"]
     return [
         ScheduleEntry(0, Activity.SLEEP, person.home_id),
@@ -238,7 +246,7 @@ def _unemployed_day_schedule(
     rng: random.Random,
 ) -> list[ScheduleEntry]:
     """No workplace commute; occasional amenity outing, else home."""
-    notes = ["Between jobs"]
+    notes = [_plan_phrase(world, person, "plan_between_jobs")]
     entries: list[ScheduleEntry] = [
         ScheduleEntry(0, Activity.SLEEP, person.home_id),
         ScheduleEntry(8 * 60 + person.wake_offset_minutes, Activity.AT_HOME, person.home_id),

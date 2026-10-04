@@ -2,7 +2,7 @@
 
 A tiny 2D top-down **audience simulator**: watch a seeded town of ~80 citizens live ordinary days.
 
-Current scope: Milestones 1–8 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, M7 observer polish, M7.5 cadence hygiene, M7.6 live-follow comfort, and M8 town pulse (denser buildings/NPCs, day/evening shifts, quieter-but-not-empty work hours).
+Current scope: Milestones 1–9 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, M7 observer polish, M7.5 cadence hygiene, M7.6 live-follow comfort, M8 town pulse (denser buildings/NPCs, day/evening shifts), and M9 chronicle polish (DF-flavored life/bond prose, demoted CRM metrics, soft inhabit UI).
 
 Not included yet: romance, crime, murder, marriage, births, economy, quests.
 
@@ -52,10 +52,10 @@ The player is an observer only. There are no orders, objectives, or win conditio
 - Day vs evening shifts on the inspector (`Shift · day` / `evening`)
 - After-work pub visits, shopping, or visits to another home (day shift)
 - Different citizens developing different habits
-- Inspect: close companions (with meet counts / peak / last seen) vs work acquaintances vs cooled bonds
-- Circumstances: illness, job loss/change, overwork, moving home — and how they thin or shift meetings
-- Life / bond timelines and accurate relationship origin (work vs amenity)
-- Following one person through their day (`F` / `O`); compact inhabit card while following; day-step with `D` / `Y`
+- Inspect: close companions and cooled bonds in chronicle prose (not friendship scores); work acquaintances
+- Circumstances: illness, job loss/change, overwork, moving home — written as small-town notes
+- Life / bond timelines with relative days for recent events; accurate origin (work vs amenity)
+- Following one person (`F` / `O`): soft camera, name tag, inhabit status bar; `T` expands timeline under the compact card
 
 ## Headless tests
 
@@ -70,6 +70,7 @@ python scripts/playtest_m7.py --mode all
 python scripts/follow_playtest.py --protocol   # random + quiet follows
 python scripts/live_follow_analysis.py --protocol  # M7.6 compact inhabit snapshots
 python scripts/town_pulse_playtest.py              # M8 density / shifts / mid-day pulse
+python scripts/chronicle_playtest.py --seed 7      # M9 chronicle voice / CRM demotion
 python scripts/playtest_m7.py --mode metrics
 ```
 
@@ -78,7 +79,7 @@ python scripts/playtest_m7.py --mode metrics
 ```text
 sim/          # pure simulation (no pygame)
   generate/   # city, population, tendencies
-  systems/    # schedule, movement, social, circumstances, observe
+  systems/    # schedule, movement, social, circumstances, observe, chronicle
 app/          # pygame camera, render, UI loop
 scripts/      # playtest / validation helpers
 tests/        # headless simulation tests

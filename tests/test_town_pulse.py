@@ -106,4 +106,6 @@ def test_evening_shift_plan_notes_mark_shift() -> None:
     world = create_world(seed=7, citizen_count=80)
     evening = [p for p in world.people.values() if p.shift == "evening"]
     assert evening
-    assert any("Evening shift" in " ".join(p.plan_notes) for p in evening)
+    assert any(
+        "evening shift" in " ".join(p.plan_notes).lower() for p in evening
+    )

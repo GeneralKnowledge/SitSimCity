@@ -31,12 +31,13 @@ def test_origin_softens_work_colocations_by_default() -> None:
     world.people[b_id].work_id = world.people[a_id].work_id
 
     soft = "\n".join(origin_summary_lines(world, rel, a_id))
-    assert "Social meetings:" in soft
+    assert "Social meetings:" not in soft
     assert "Often at work together" in soft
     assert "Work colocations:" not in soft
     assert "Currently coworkers" in soft
 
     verbose = "\n".join(origin_summary_lines(world, rel, a_id, verbose_work=True))
+    assert "Social meetings:" in verbose
     assert "Work colocations: 40" in verbose
     assert "familiarity only" in verbose.lower() or "no friendship" in verbose.lower()
 
@@ -95,7 +96,8 @@ def test_bond_detail_uses_soft_work_prose() -> None:
     rel.meetings_work = 12
     world.people[b_id].work_id = world.people[a_id].work_id
     detail = "\n".join(relationship_detail_lines(world, a_id, b_id))
-    assert "Social meetings:" in detail
+    assert "Social meetings:" not in detail
+    assert "Friendship " not in detail
     assert "Often at work together" in detail
     assert "Work colocations:" not in detail
 

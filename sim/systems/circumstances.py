@@ -140,15 +140,20 @@ def _expire_circumstances(world: World, person: Person, day: int) -> None:
 def _on_circumstance_end(
     world: World, person: Person, circ: Circumstance, day: int
 ) -> None:
+    from sim.systems.chronicle import pick_phrase
+
+    rng = make_rng(world.seed, f"chronicle-end-d{day}-p{person.id}")
     if circ.kind == CircumstanceKind.SICK:
         record_life_event(
             person,
-            LifeEvent(LifeEventKind.RECOVERED, day, "Recovered from illness"),
+            LifeEvent(LifeEventKind.RECOVERED, day, pick_phrase(rng, "recovered")),
         )
     elif circ.kind == CircumstanceKind.OVERWORKED:
         record_life_event(
             person,
-            LifeEvent(LifeEventKind.OVERWORK_ENDED, day, "Workload eased"),
+            LifeEvent(
+                LifeEventKind.OVERWORK_ENDED, day, pick_phrase(rng, "overwork_ended")
+            ),
         )
     elif circ.kind == CircumstanceKind.UNEMPLOYED:
         _assign_new_job(world, person, day)
@@ -186,7 +191,7 @@ def _maybe_start_circumstances(world: World, person: Person, day: int, rng) -> N
         and rng.random() < OVERWORKED_DAILY_CHANCE
     ):
         days = rng.randint(OVERWORKED_MIN_DAYS, OVERWORKED_MAX_DAYS)
-        _start_overworked(person, day, days)
+        _start_overworked(world, person, day, days)
         return
 
     if (
@@ -197,24 +202,35 @@ def _maybe_start_circumstances(world: World, person: Person, day: int, rng) -> N
 
 
 def _start_sick(world: World, person: Person, day: int, days: int) -> None:
+    from sim.systems.chronicle import pick_phrase
+
+    rng = make_rng(world.seed, f"chronicle-sick-d{day}-p{person.id}")
     person.circumstances.append(
-        Circumstance(CircumstanceKind.SICK, day, day + days - 1, "ill at home")
+        Circumstance(
+            CircumstanceKind.SICK,
+            day,
+            day + days - 1,
+            pick_phrase(rng, "note_sick"),
+        )
     )
     record_life_event(
         person,
-        LifeEvent(LifeEventKind.BECAME_SICK, day, f"Fell ill ({days} days)"),
+        LifeEvent(LifeEventKind.BECAME_SICK, day, pick_phrase(rng, "became_sick")),
     )
-    _note_contacts(world, person, "Became less available while ill")
+    _note_contacts(world, person, pick_phrase(rng, "contact_ill"))
 
 
 def _start_unemployed(world: World, person: Person, day: int, days: int) -> None:
+    from sim.systems.chronicle import pick_phrase
+
     old_work = world.buildings[person.work_id].name
+    rng = make_rng(world.seed, f"chronicle-unemp-d{day}-p{person.id}")
     person.circumstances.append(
         Circumstance(
             CircumstanceKind.UNEMPLOYED,
             day,
             day + days - 1,
-            f"left {old_work}",
+            pick_phrase(rng, "note_unemployed", place=old_work),
         )
     )
     record_life_event(
@@ -222,19 +238,22 @@ def _start_unemployed(world: World, person: Person, day: int, days: int) -> None
         LifeEvent(
             LifeEventKind.BECAME_UNEMPLOYED,
             day,
-            f"Left job at {old_work}",
+            pick_phrase(rng, "became_unemployed", place=old_work),
         ),
     )
-    _note_contacts(world, person, "Became less available after leaving work")
+    _note_contacts(world, person, pick_phrase(rng, "contact_left_work"))
 
 
-def _start_overworked(person: Person, day: int, days: int) -> None:
+def _start_overworked(world: World, person: Person, day: int, days: int) -> None:
+    from sim.systems.chronicle import pick_phrase
+
+    rng = make_rng(world.seed, f"chronicle-overwork-d{day}-p{person.id}")
     person.circumstances.append(
         Circumstance(
             CircumstanceKind.OVERWORKED,
             day,
             day + days - 1,
-            "long work days",
+            pick_phrase(rng, "note_overworked"),
         )
     )
     record_life_event(
@@ -242,7 +261,7 @@ def _start_overworked(person: Person, day: int, days: int) -> None:
         LifeEvent(
             LifeEventKind.BECAME_OVERWORKED,
             day,
-            f"Overworked ({days} days)",
+            pick_phrase(rng, "became_overworked"),
         ),
     )
 
@@ -282,12 +301,15 @@ def _try_move_home(world: World, person: Person, day: int, rng) -> None:
     person.path_index = 0
     person.move_progress = 0.0
 
+    from sim.systems.chronicle import pick_phrase
+
+    phrase_rng = make_rng(world.seed, f"chronicle-move-d{day}-p{person.id}")
     person.circumstances.append(
         Circumstance(
             CircumstanceKind.RECENTLY_MOVED,
             day,
             day + RECENTLY_MOVED_DAYS - 1,
-            f"from {old.name}",
+            pick_phrase(phrase_rng, "note_moved", place=old.name),
         )
     )
     record_life_event(
@@ -295,10 +317,12 @@ def _try_move_home(world: World, person: Person, day: int, rng) -> None:
         LifeEvent(
             LifeEventKind.MOVED_HOME,
             day,
-            f"Moved from {old.name} to {new_home.name}",
+            pick_phrase(
+                phrase_rng, "moved_home", old=old.name, new=new_home.name
+            ),
         ),
     )
-    _note_contacts(world, person, "Harder to catch after moving neighbourhood")
+    _note_contacts(world, person, pick_phrase(phrase_rng, "contact_moved"))
 
 
 def _assign_new_job(world: World, person: Person, day: int) -> None:
@@ -324,18 +348,23 @@ def _assign_new_job(world: World, person: Person, day: int) -> None:
     rng = make_rng(world.seed, f"rehire-d{day}-p{person.id}")
     new_work = rng.choice(candidates[: max(1, len(candidates) // 2)])
 
+    from sim.systems.chronicle import pick_phrase
+
     old_name = world.buildings[person.work_id].name
     person.work_id = new_work.id
     person.occupation = new_work.occupation or person.occupation
+    phrase_rng = make_rng(world.seed, f"chronicle-job-d{day}-p{person.id}")
     record_life_event(
         person,
         LifeEvent(
             LifeEventKind.JOB_CHANGED,
             day,
-            f"Started work at {new_work.name} (left {old_name})",
+            pick_phrase(
+                phrase_rng, "job_changed", new=new_work.name, old=old_name
+            ),
         ),
     )
-    _note_contacts(world, person, "Fewer shared workdays after a job change")
+    _note_contacts(world, person, pick_phrase(phrase_rng, "contact_job_change"))
 
 
 def _note_contacts(world: World, person: Person, note: str) -> None:
@@ -353,26 +382,44 @@ def _note_contacts(world: World, person: Person, note: str) -> None:
         add_relationship_note(world, person.id, other_id, note)
 
 
-def circumstance_summary_lines(person: Person) -> list[str]:
+def circumstance_summary_lines(person: Person, current_day: int | None = None) -> list[str]:
     if not person.circumstances:
         return []
+    from sim.systems.chronicle import relative_day_phrase
+
     labels = {
-        CircumstanceKind.SICK: "Sick",
-        CircumstanceKind.UNEMPLOYED: "Unemployed",
-        CircumstanceKind.OVERWORKED: "Overworked",
-        CircumstanceKind.RECENTLY_MOVED: "Recently moved",
+        CircumstanceKind.SICK: "Under the weather",
+        CircumstanceKind.UNEMPLOYED: "Between jobs",
+        CircumstanceKind.OVERWORKED: "Worn thin by work",
+        CircumstanceKind.RECENTLY_MOVED: "Newly settled",
     }
     lines = ["Circumstances:"]
     for circ in person.circumstances:
         label = labels.get(circ.kind, circ.kind.name.title())
         extra = f" — {circ.note}" if circ.note else ""
-        lines.append(f"  {label}{extra} (until day {circ.end_day})")
+        if current_day is not None:
+            until = relative_day_phrase(circ.end_day, current_day)
+            if until == "today":
+                until_bit = "through today"
+            elif until == "yesterday":
+                until_bit = "ending yesterday"
+            else:
+                # end_day in the future → phrase as days left
+                left = circ.end_day - current_day
+                until_bit = "through today" if left <= 0 else f"for {left} more day{'s' if left != 1 else ''}"
+        else:
+            until_bit = f"until day {circ.end_day}"
+        lines.append(f"  {label}{extra} ({until_bit})")
     return lines
 
 
-def recent_life_event_lines(person: Person, limit: int = 4) -> list[str]:
+def recent_life_event_lines(
+    person: Person, limit: int = 4, current_day: int | None = None
+) -> list[str]:
     if not person.life_events:
         return []
+    from sim.systems.chronicle import relative_day_phrase
+
     # Prefer durable life changes over frequent social milestones in the panel.
     life_change = {
         LifeEventKind.BECAME_SICK,
@@ -397,7 +444,11 @@ def recent_life_event_lines(person: Person, limit: int = 4) -> list[str]:
     chosen.sort(key=lambda e: e.day)
     lines = ["Recent events:"]
     for event in chosen[-limit:]:
-        lines.append(f"  {event.detail} — day {event.day}")
+        if current_day is not None and current_day - event.day <= 14:
+            when = relative_day_phrase(event.day, current_day)
+        else:
+            when = f"day {event.day}"
+        lines.append(f"  {event.detail} — {when}")
     return lines
 
 
@@ -410,10 +461,10 @@ def relationship_history_lines(rel, world: World, viewer_id: int) -> list[str]:
     if rel.ever_close or rel.peak_friendship >= 20:
         where = ""
         if rel.close_context:
-            from sim.systems.social import _origin_phrase
+            from sim.systems.social import place_clause
 
-            where = f" {_origin_phrase(rel.close_context)}"
-        lines.append(f"  Became close{where}")
+            where = f" {place_clause(rel.close_context)}"
+        lines.append(f"  Grew close{where}")
     for note in rel.story_notes[-2:]:
         lines.append(f"  {note}")
     if (
@@ -421,7 +472,7 @@ def relationship_history_lines(rel, world: World, viewer_id: int) -> list[str]:
         and rel.friendship < rel.peak_friendship * 0.6
         and rel.friendship > 0
     ):
-        lines.append("  Friendship cooled after fewer meetings")
+        lines.append("  They have been missing each other lately")
     other_id = rel.b_id if rel.a_id == viewer_id else rel.a_id
     for pid in (viewer_id, other_id):
         person = world.people[pid]
@@ -430,6 +481,6 @@ def relationship_history_lines(rel, world: World, viewer_id: int) -> list[str]:
                 event.kind == LifeEventKind.REUNITED
                 and event.related_person_id in (viewer_id, other_id)
             ):
-                lines.append("  Recent reunion")
+                lines.append("  Found each other again recently")
                 return lines
     return lines

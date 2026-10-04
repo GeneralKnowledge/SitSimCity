@@ -131,12 +131,15 @@ def create_world(seed: int = 42, citizen_count: int = 80) -> World:
         person.x = float(home.x)
         person.y = float(home.y)
         person.activity = Activity.SLEEP
+        from sim.systems.chronicle import pick_phrase
+
+        place_rng = make_rng(seed, f"chronicle-place-p{person.id}")
         record_life_event(
             person,
             LifeEvent(
                 LifeEventKind.SETTLED_HOME,
                 1,
-                f"Lives at {home.name}",
+                pick_phrase(place_rng, "settled_home", place=home.name),
             ),
         )
         record_life_event(
@@ -144,7 +147,7 @@ def create_world(seed: int = 42, citizen_count: int = 80) -> World:
             LifeEvent(
                 LifeEventKind.STARTED_JOB,
                 1,
-                f"Works at {work.name}",
+                pick_phrase(place_rng, "started_job", place=work.name),
             ),
         )
     assign_schedules(world)

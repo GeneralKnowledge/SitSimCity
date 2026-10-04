@@ -4,6 +4,7 @@ import pygame
 
 from app import colors
 from app.camera import Camera
+from sim.systems.chronicle import smart_truncate, street_label, time_of_day_band
 from sim.systems.circumstances import circumstance_summary_lines, recent_life_event_lines
 from sim.systems.observe import (
     citizen_timeline,
@@ -43,9 +44,27 @@ def draw_world(
     map_rect = pygame.Rect(0, 0, surface.get_width(), surface.get_height() - BAR_HEIGHT)
     map_surf = surface.subsurface(map_rect)
 
+    close_ids: list[int] = []
+    if following and selected_id is not None and selected_id in world.people:
+        close_ids = [oid for oid, _, _ in close_companions(world, selected_id, limit=2)]
     _draw_tiles(map_surf, world, camera)
-    _draw_buildings(map_surf, world, camera, small_font, selected_building_id)
-    _draw_people(map_surf, world, camera, selected_id, following)
+    _draw_buildings(
+        map_surf,
+        world,
+        camera,
+        small_font,
+        selected_building_id,
+        followed_id=selected_id if following else None,
+    )
+    _draw_people(
+        map_surf,
+        world,
+        camera,
+        selected_id,
+        following,
+        small_font=small_font,
+        close_ids=close_ids,
+    )
     if day_cue_text:
         _draw_day_cue(map_surf, day_cue_text, font)
     _draw_hud(
@@ -86,8 +105,11 @@ def _draw_buildings(
     camera: Camera,
     small_font: pygame.font.Font,
     selected_building_id: int | None,
+    *,
+    followed_id: int | None = None,
 ) -> None:
     tile_px = TILE * camera.zoom
+    followed = world.people.get(followed_id) if followed_id is not None else None
     for building in world.buildings.values():
         sx, sy = camera.world_to_screen(building.x * TILE, building.y * TILE)
         rect = pygame.Rect(sx, sy, tile_px, tile_px)
@@ -97,9 +119,20 @@ def _draw_buildings(
         pygame.draw.rect(surface, fill, rect)
         border = colors.SELECT if building.id == selected_building_id else colors.PANEL_BORDER
         pygame.draw.rect(surface, border, rect, 2 if building.id == selected_building_id else 1)
-        if camera.zoom >= 0.9:
-            label = building.name if building.kind != BuildingKind.HOME else building.name.split()[0]
-            text = small_font.render(label[:16], True, colors.TEXT)
+        relevant = followed is not None and building.id in (
+            followed.home_id,
+            followed.work_id,
+        )
+        show_label = camera.zoom >= 0.9 and (
+            building.kind != BuildingKind.HOME or camera.zoom >= 1.2 or relevant
+        )
+        if show_label:
+            if building.kind == BuildingKind.HOME:
+                label = street_label(building.name)
+            else:
+                label = building.name
+            color = colors.TEXT if relevant or building.id == selected_building_id else colors.MUTED
+            text = small_font.render(smart_truncate(label, 16), True, color)
             surface.blit(text, (sx + 2, sy - 12))
 
 
@@ -109,8 +142,12 @@ def _draw_people(
     camera: Camera,
     selected_id: int | None,
     following: bool,
+    *,
+    small_font: pygame.font.Font | None = None,
+    close_ids: list[int] | None = None,
 ) -> None:
     size = max(3, int(6 * camera.zoom))
+    close_ids = close_ids or []
     for person in sorted(world.people.values(), key=lambda p: p.id):
         wx = person.x * TILE + TILE / 2
         wy = person.y * TILE + TILE / 2
@@ -121,6 +158,12 @@ def _draw_people(
         if person.id == selected_id:
             outline = colors.FOLLOW if following else colors.SELECT
             pygame.draw.rect(surface, outline, rect.inflate(4, 4), 1)
+            if following and small_font is not None:
+                name = small_font.render(person.name.split()[0], True, colors.FOLLOW)
+                surface.blit(name, (rect.centerx - name.get_width() // 2, rect.y - 14))
+        elif following and person.id in close_ids and small_font is not None:
+            name = small_font.render(person.name.split()[0], True, colors.MUTED)
+            surface.blit(name, (rect.centerx - name.get_width() // 2, rect.y - 12))
 
 
 def _draw_day_cue(
@@ -165,17 +208,26 @@ def _draw_hud(
         (width, height - BAR_HEIGHT),
         1,
     )
-    paused = "PAUSED" if world.clock.paused else "RUNNING"
-    follow_bit = "  ·  FOLLOW" if following else ""
-    status = (
-        f"{paused}{follow_bit}   Speed {world.clock.speed:g}x   {world.clock.format_time()}   "
-        f"Seed {world.seed}   Citizens {len(world.people)}"
-    )
+    band = time_of_day_band(world.clock.minute_of_day)
+    if following and selected_id is not None and selected_id in world.people:
+        name = world.people[selected_id].name.split()[0]
+        paused = "PAUSED" if world.clock.paused else "RUNNING"
+        status = (
+            f"Watching {name}  ·  {paused}  ·  "
+            f"{world.clock.format_time()}  ·  {band}"
+        )
+        help_text = "T timeline  ·  J bond  ·  D/+day  Y/+5d  ·  Esc leave"
+    else:
+        paused = "PAUSED" if world.clock.paused else "RUNNING"
+        status = (
+            f"{paused}   Speed {world.clock.speed:g}x   {world.clock.format_time()}   "
+            f"{band}   Seed {world.seed}   Citizens {len(world.people)}"
+        )
+        help_text = (
+            "Space pause  |  [ ] speed  |  D/+day  Y/+5d  |  F follow  |  O random  |  "
+            "T timeline  |  J bond  |  I interesting  |  W report  |  Esc clear"
+        )
     surface.blit(font.render(status, True, colors.TEXT), (12, height - 36))
-    help_text = (
-        "Space pause  |  [ ] speed  |  D/+day  Y/+5d  |  F follow  |  O random  |  "
-        "T timeline  |  J bond  |  I interesting  |  W report  |  Esc clear"
-    )
     surface.blit(small_font.render(help_text, True, colors.MUTED), (12, height - 18))
 
     lines: list[str] | None = None
@@ -226,7 +278,7 @@ def _draw_panel(
     for i, line in enumerate(lines):
         f = font if i == 0 else small_font
         color = colors.FOLLOW if (following and i == 0) else (colors.TEXT if i == 0 else colors.MUTED)
-        surface.blit(f.render(line[:max_chars], True, color), (panel.x + 12, y))
+        surface.blit(f.render(smart_truncate(line, max_chars), True, color), (panel.x + 12, y))
         y += 17 if i == 0 else 15
         if y > panel.bottom - 16:
             break
@@ -240,9 +292,9 @@ def _person_inspector_lines(
     show_timeline: bool = False,
     focus_other_id: int | None = None,
 ) -> list[str]:
-    # Follow mode defaults to a lean "sit with them" card.
-    if following and focus_other_id is None and not show_timeline:
-        return _compact_follow_lines(world, person)
+    # Follow mode stays inhabit-shaped — timeline appends under the compact card.
+    if following and focus_other_id is None:
+        return _compact_follow_lines(world, person, show_timeline=show_timeline)
 
     home = world.buildings[person.home_id]
     work = world.buildings[person.work_id]
@@ -262,24 +314,34 @@ def _person_inspector_lines(
     ]
     if person.plan_notes:
         lines.append("Today: " + "; ".join(person.plan_notes))
-    lines.extend(circumstance_summary_lines(person))
+    lines.extend(circumstance_summary_lines(person, current_day=world.clock.day))
 
     if focus_other_id is not None and focus_other_id in world.people:
         lines.append("— Bond focus (J cycles) —")
         lines.extend(relationship_detail_lines(world, person.id, focus_other_id))
     else:
         lines.extend(social_summary_lines(world, person.id))
-        lines.extend(recent_life_event_lines(person, limit=4))
+        lines.extend(
+            recent_life_event_lines(person, limit=4, current_day=world.clock.day)
+        )
 
     if show_timeline:
         entries = citizen_timeline(world, person.id, limit=14)
-        lines.extend(timeline_lines(entries, heading="Life timeline (T):"))
+        lines.extend(
+            timeline_lines(
+                entries,
+                heading="Life timeline (T):",
+                current_day=world.clock.day,
+            )
+        )
 
     lines.append("Observer only — no orders.")
     return lines
 
 
-def _compact_follow_lines(world: World, person: Person) -> list[str]:
+def _compact_follow_lines(
+    world: World, person: Person, *, show_timeline: bool = False
+) -> list[str]:
     """Lean inhabit card: where they are, what's on today, who matters."""
     home = world.buildings[person.home_id]
     work = world.buildings[person.work_id]
@@ -294,10 +356,22 @@ def _compact_follow_lines(world: World, person: Person) -> list[str]:
     ]
     if person.plan_notes:
         lines.append("Today: " + "; ".join(person.plan_notes))
-    lines.extend(circumstance_summary_lines(person))
+    lines.extend(circumstance_summary_lines(person, current_day=world.clock.day))
     lines.extend(_compact_social_lines(world, person.id))
-    lines.extend(recent_life_event_lines(person, limit=3))
-    lines.append("Sit with them — T timeline · J bond")
+    lines.extend(
+        recent_life_event_lines(person, limit=3, current_day=world.clock.day)
+    )
+    if show_timeline:
+        entries = citizen_timeline(world, person.id, limit=10)
+        lines.extend(
+            timeline_lines(
+                entries,
+                heading="Life timeline (T):",
+                current_day=world.clock.day,
+            )
+        )
+    else:
+        lines.append("Sit with them — T timeline · J bond")
     return lines
 
 

@@ -71,7 +71,7 @@ def test_tendencies_create_different_patterns() -> None:
         notes = " ".join(person.plan_notes).lower()
         if "pub" in notes:
             pub_lovers += 1
-        if "straight home" in notes:
+        if "straight home" in notes or "home again" in notes or "home when" in notes:
             homebodies += 1
     assert pub_lovers >= 1
     assert homebodies >= 1
