@@ -208,9 +208,9 @@ def _draw_panel(
     following: bool = False,
 ) -> None:
     width, height = surface.get_size()
-    # Compact follow panel is narrower so the town stays visible.
+    # Compact follow panel is slightly narrower so the town stays visible.
     if following and side == "right":
-        panel_w = 280
+        panel_w = 300
     else:
         panel_w = 340 if side == "right" else 320
     panel_h = 20 + len(lines) * 15
@@ -222,7 +222,7 @@ def _draw_panel(
     pygame.draw.rect(surface, colors.PANEL, panel)
     pygame.draw.rect(surface, colors.PANEL_BORDER, panel, 1)
     y = panel.y + 10
-    max_chars = 40 if following and side == "right" else 48
+    max_chars = 44 if following and side == "right" else 48
     for i, line in enumerate(lines):
         f = font if i == 0 else small_font
         color = colors.FOLLOW if (following and i == 0) else (colors.TEXT if i == 0 else colors.MUTED)
@@ -287,7 +287,8 @@ def _compact_follow_lines(world: World, person: Person) -> list[str]:
         f"{person.name}  ·  FOLLOWING",
         f"{person.occupation} · age {person.age}",
         f"Now: {activity}",
-        f"Home · {home.name}   Work · {work.name}",
+        f"Home · {home.name}",
+        f"Work · {work.name}",
     ]
     if person.plan_notes:
         lines.append("Today: " + "; ".join(person.plan_notes))

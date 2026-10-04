@@ -67,6 +67,7 @@ pytest -q
 ```bash
 python scripts/playtest_m7.py --mode all
 python scripts/follow_playtest.py --protocol   # random + quiet follows
+python scripts/live_follow_analysis.py --protocol  # M7.6 compact inhabit snapshots
 python scripts/playtest_m7.py --mode metrics
 ```
 
