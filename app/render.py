@@ -312,6 +312,13 @@ def _person_inspector_lines(
         ),
         f"         pub {t.pub_affinity}  routine {t.routine_adherence}",
     ]
+    if person.parent_ids:
+        parent_names = []
+        for pid in person.parent_ids:
+            if pid in world.people:
+                parent_names.append(world.people[pid].name.split()[0])
+        if parent_names:
+            lines.append("Family · child of " + " & ".join(parent_names))
     if person.plan_notes:
         lines.append("Today: " + "; ".join(person.plan_notes))
     lines.extend(circumstance_summary_lines(person, current_day=world.clock.day))
@@ -354,6 +361,14 @@ def _compact_follow_lines(
         f"Home · {home.name}",
         f"Work · {work.name}",
     ]
+    if person.parent_ids:
+        parent_names = [
+            world.people[pid].name.split()[0]
+            for pid in person.parent_ids
+            if pid in world.people
+        ]
+        if parent_names:
+            lines.append("Family · " + " & ".join(parent_names))
     if person.plan_notes:
         lines.append("Today: " + "; ".join(person.plan_notes))
     lines.extend(circumstance_summary_lines(person, current_day=world.clock.day))

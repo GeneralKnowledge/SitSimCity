@@ -31,6 +31,11 @@ _DURABLE_TIMELINE_KINDS = frozenset(
         "started_job",
         "home",
         "work",
+        "died",
+        "friend_passed",
+        "arrived",
+        "child_settled",
+        "title_changed",
     }
 )
 
@@ -472,6 +477,13 @@ def world_metrics(world: World) -> dict:
 
     n = len(world.people)
     mean_deg = sum(degrees) / n if n else 0.0
+    deaths = sum(1 for e in world.town_chronicle if e.kind == LifeEventKind.DIED)
+    arrivals = sum(1 for e in world.town_chronicle if e.kind == LifeEventKind.ARRIVED)
+    couples = sum(
+        1
+        for rel in world.relationships.values()
+        if any(be.kind == "keeping_company" for be in rel.bond_events)
+    )
     return {
         "day": world.clock.day,
         "population": n,
@@ -493,6 +505,9 @@ def world_metrics(world: World) -> dict:
         "avg_life_events": (
             sum(len(p.life_events) for p in world.people.values()) / n if n else 0.0
         ),
+        "town_deaths": deaths,
+        "town_arrivals": arrivals,
+        "keeping_company_pairs": couples,
     }
 
 
@@ -501,6 +516,8 @@ def world_report_lines(world: World) -> list[str]:
     lines = [
         f"WORLD — DAY {m['day']}",
         f"Population: {m['population']}",
+        f"Town chronicle: {m['town_deaths']} deaths · {m['town_arrivals']} arrivals",
+        f"Keeping company: {m['keeping_company_pairs']} pairs",
         "Relationships",
         f"  Close: {m['close_edges']}",
         f"  Acquaintance: {m['acquaintance_edges']}",
@@ -537,6 +554,10 @@ def world_report_lines(world: World) -> list[str]:
         lines.append(
             f"  {world.people[a].name} ↔ {world.people[b].name} (score {score})"
         )
+    if world.town_chronicle:
+        lines.append("Recent town chronicle")
+        for event in world.town_chronicle[-6:]:
+            lines.append(f"  Day {event.day}: {event.detail}")
     return lines
 
 

@@ -133,6 +133,15 @@ def run(seed: int = 42, citizens: int = 80, width: int = 1120, height: int = 720
         if minutes > 0:
             world.step_minutes(min(minutes, 500))
 
+        # M10: followed citizen may have exited — drop inhabit cleanly.
+        if selected_id is not None and selected_id not in world.people:
+            selected_id = None
+            following = False
+            focus_other_id = None
+            show_timeline = False
+        if focus_other_id is not None and focus_other_id not in world.people:
+            focus_other_id = None
+
         if world.clock.day != last_day:
             day_cue_until = time.monotonic() + DAY_CUE_SECONDS
             last_day = world.clock.day
