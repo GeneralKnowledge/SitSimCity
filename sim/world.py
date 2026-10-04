@@ -14,10 +14,13 @@ from sim.systems.social import (
     process_colocations,
     record_arrival,
 )
+from sim.systems.circumstances import record_life_event
 from sim.types import (
     MINUTES_PER_DAY,
     Activity,
     Building,
+    LifeEvent,
+    LifeEventKind,
     Person,
     Relationship,
     TileKind,
@@ -124,8 +127,25 @@ def create_world(seed: int = 42, citizen_count: int = 50) -> World:
     )
     for person in world.people.values():
         home = world.buildings[person.home_id]
+        work = world.buildings[person.work_id]
         person.x = float(home.x)
         person.y = float(home.y)
         person.activity = Activity.SLEEP
+        record_life_event(
+            person,
+            LifeEvent(
+                LifeEventKind.SETTLED_HOME,
+                1,
+                f"Lives at {home.name}",
+            ),
+        )
+        record_life_event(
+            person,
+            LifeEvent(
+                LifeEventKind.STARTED_JOB,
+                1,
+                f"Works at {work.name}",
+            ),
+        )
     assign_schedules(world)
     return world

@@ -47,11 +47,49 @@ def is_available_host(person: Person) -> bool:
     )
 
 
+_DURABLE_LIFE_KINDS = frozenset(
+    {
+        LifeEventKind.BECAME_SICK,
+        LifeEventKind.RECOVERED,
+        LifeEventKind.BECAME_UNEMPLOYED,
+        LifeEventKind.JOB_CHANGED,
+        LifeEventKind.MOVED_HOME,
+        LifeEventKind.BECAME_OVERWORKED,
+        LifeEventKind.OVERWORK_ENDED,
+        LifeEventKind.SETTLED_HOME,
+        LifeEventKind.STARTED_JOB,
+    }
+)
+
+
 def record_life_event(person: Person, event: LifeEvent) -> None:
+    """Append a life event. Social milestones may be throttled for cadence."""
+    from sim.types import BECAME_CLOSE_LIFE_EVENT_GAP_DAYS
+
+    # Reunions stay on bond_events only — they flooded citizen timelines.
+    if event.kind == LifeEventKind.REUNITED:
+        return
+
+    if event.kind == LifeEventKind.BECAME_CLOSE:
+        for prev in reversed(person.life_events):
+            if prev.kind != LifeEventKind.BECAME_CLOSE:
+                continue
+            if event.day - prev.day < BECAME_CLOSE_LIFE_EVENT_GAP_DAYS:
+                return
+            break
+
     person.life_events.append(event)
+    # Prefer retaining durable events when trimming the ring buffer.
     if len(person.life_events) > LIFE_EVENT_HISTORY_LIMIT:
-        person.life_events = person.life_events[-LIFE_EVENT_HISTORY_LIMIT:]
-    _append_history_line(person, f"Day {event.day}: {event.detail}")
+        durable = [e for e in person.life_events if e.kind in _DURABLE_LIFE_KINDS]
+        social = [e for e in person.life_events if e.kind not in _DURABLE_LIFE_KINDS]
+        keep_social = LIFE_EVENT_HISTORY_LIMIT - len(durable)
+        if keep_social < 0:
+            person.life_events = durable[-LIFE_EVENT_HISTORY_LIMIT:]
+        else:
+            person.life_events = durable + social[-keep_social:]
+    if event.kind in _DURABLE_LIFE_KINDS:
+        _append_history_line(person, f"Day {event.day}: {event.detail}")
 
 
 def _append_history_line(person: Person, line: str) -> None:
@@ -345,12 +383,17 @@ def recent_life_event_lines(person: Person, limit: int = 4) -> list[str]:
         LifeEventKind.BECAME_OVERWORKED,
         LifeEventKind.OVERWORK_ENDED,
     }
+    baseline = {LifeEventKind.SETTLED_HOME, LifeEventKind.STARTED_JOB}
     changes = [e for e in person.life_events if e.kind in life_change]
-    social = [e for e in person.life_events if e.kind not in life_change]
+    social = [
+        e for e in person.life_events if e.kind not in life_change and e.kind not in baseline
+    ]
     chosen = changes[-(limit - 1) :] if limit > 1 else []
     remaining = limit - len(chosen)
     if remaining > 0:
         chosen = chosen + social[-remaining:]
+    if not chosen:
+        return []
     chosen.sort(key=lambda e: e.day)
     lines = ["Recent events:"]
     for event in chosen[-limit:]:

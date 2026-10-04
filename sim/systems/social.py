@@ -623,7 +623,7 @@ def social_summary_lines(world: World, person_id: int) -> list[str]:
         lines.append(
             f"  Friendship {rel.friendship} · peak {rel.peak_friendship} · last seen {last_bit}"
         )
-        for origin_line in origin_summary_lines(world, rel, person_id)[:2]:
+        for origin_line in origin_summary_lines(world, rel, person_id)[:3]:
             lines.append(f"  {origin_line}")
         if rel.peak_friendship > rel.friendship + 5:
             lines.append("  Used to be closer")

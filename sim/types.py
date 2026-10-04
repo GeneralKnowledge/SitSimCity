@@ -123,6 +123,9 @@ class LifeEventKind(Enum):
     OVERWORK_ENDED = auto()
     BECAME_CLOSE = auto()
     REUNITED = auto()
+    # Day-1 placement (M7.5); durable baseline for timelines.
+    SETTLED_HOME = auto()
+    STARTED_JOB = auto()
 
 
 @dataclass(frozen=True)
@@ -251,3 +254,11 @@ RECENTLY_MOVED_DAYS = 5
 LIFE_EVENT_HISTORY_LIMIT = 24
 CIRCUMSTANCE_NOTE_LIMIT = 4
 BOND_EVENT_LIMIT = 16
+
+# M7.5 cadence hygiene (logging/presentation only — not friendship math).
+# BECAME_CLOSE life-events: at most one per person inside this window.
+BECAME_CLOSE_LIFE_EVENT_GAP_DAYS = 5
+# Timeline render caps (citizen_timeline).
+TIMELINE_MAX_BECAME_CLOSE = 3
+TIMELINE_MAX_REUNITED = 1
+TIMELINE_MAX_FIRST_MET = 4

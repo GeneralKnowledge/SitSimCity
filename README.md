@@ -2,7 +2,7 @@
 
 A tiny 2D top-down **audience simulator**: watch a seeded town of ~50 citizens live ordinary days.
 
-Current scope: Milestones 1–7 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, and M7 observer polish (timelines, bond origin, day-step, interesting-citizen ranking, world report).
+Current scope: Milestones 1–7.5 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, M7 observer polish, and M7.5 cadence hygiene (readable timelines, work vs social meeting clarity, follow playtests).
 
 Not included yet: romance, crime, murder, marriage, births, economy, quests.
 
@@ -65,7 +65,7 @@ pytest -q
 
 ```bash
 python scripts/playtest_m7.py --mode all
-python scripts/playtest_m7.py --mode a          # seed 7 · 100 days
+python scripts/follow_playtest.py --protocol   # random + quiet follows
 python scripts/playtest_m7.py --mode metrics
 ```
 

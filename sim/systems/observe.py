@@ -11,8 +11,27 @@ from sim.types import (
     ACQUAINTANCE_FRIENDSHIP_MAX,
     CLOSE_FRIENDSHIP_MIN,
     MINUTES_PER_DAY,
+    TIMELINE_MAX_BECAME_CLOSE,
+    TIMELINE_MAX_FIRST_MET,
+    TIMELINE_MAX_REUNITED,
     LifeEventKind,
     Relationship,
+)
+
+_DURABLE_TIMELINE_KINDS = frozenset(
+    {
+        "became_sick",
+        "recovered",
+        "became_unemployed",
+        "job_changed",
+        "moved_home",
+        "became_overworked",
+        "overwork_ended",
+        "settled_home",
+        "started_job",
+        "home",
+        "work",
+    }
 )
 
 if TYPE_CHECKING:
@@ -82,60 +101,27 @@ def origin_summary_lines(
     origin = rel.origin_context
     lines.append(f"Origin: {context_label(origin)}")
 
-    place = dominant_meeting_place(rel)
     social = social_meeting_count(rel)
-    if place:
+    lines.append(f"Social meetings: {social}")
+    lines.append(
+        f"Work colocations: {rel.meetings_work} (familiarity only; no friendship)"
+    )
+
+    place = dominant_meeting_place(rel)
+    if place and social > 0:
         place_label = "Visits" if place == "visits" else place.title()
-        if origin and place != origin and not (
-            place == "visits" and origin == "visit"
-        ):
-            lines.append(f"Frequent place: {place_label} ({social} social meetings)")
-        elif social > 0:
-            lines.append(f"Frequent place: {place_label} ({social})")
+        lines.append(f"Frequent social place: {place_label}")
 
     other_id = rel.b_id if rel.a_id == viewer_id else rel.a_id
     if are_coworkers(world, viewer_id, other_id):
-        if origin == "work":
-            lines.append("Coworkers")
-        else:
-            lines.append(f"Also coworkers (work meetings: {rel.meetings_work})")
+        lines.append("Currently coworkers")
     elif rel.meetings_work > 0 and origin != "work":
-        lines.append(f"Later overlap: work ({rel.meetings_work} meetings)")
+        lines.append("Later overlap: shared workplace time")
 
     return lines
 
 
-def citizen_timeline(world: World, person_id: int, limit: int = 24) -> list[TimelineEntry]:
-    """Chronological life timeline from recorded facts + initial placement."""
-    person = world.people[person_id]
-    home = world.buildings[person.home_id]
-    work = world.buildings[person.work_id]
-    entries: list[TimelineEntry] = [
-        TimelineEntry(1, f"Lives at {home.name}", "home"),
-        TimelineEntry(1, f"Works at {work.name}", "work"),
-    ]
-    for event in person.life_events:
-        entries.append(TimelineEntry(event.day, event.detail, event.kind.name.lower()))
-
-    # First meetings come from bond events; close/reunion already live on life_events.
-    for (a, b), rel in world.relationships.items():
-        if person_id not in (a, b):
-            continue
-        other_id = b if a == person_id else a
-        other = world.people[other_id]
-        for be in rel.bond_events:
-            if be.kind != "first_met":
-                continue
-            entries.append(
-                TimelineEntry(
-                    be.day,
-                    f"Met {other.name} {be.detail.replace('First met ', '')}",
-                    "first_met",
-                )
-            )
-
-    entries.sort(key=lambda e: (e.day, e.text))
-    # Deduplicate identical day+text
+def _dedupe_timeline(entries: list[TimelineEntry]) -> list[TimelineEntry]:
     deduped: list[TimelineEntry] = []
     seen: set[tuple[int, str]] = set()
     for entry in entries:
@@ -144,9 +130,91 @@ def citizen_timeline(world: World, person_id: int, limit: int = 24) -> list[Time
             continue
         seen.add(key)
         deduped.append(entry)
-    if limit > 0:
-        return deduped[-limit:]
     return deduped
+
+
+def _cap_timeline_kinds(entries: list[TimelineEntry]) -> list[TimelineEntry]:
+    """Keep durable events; cap noisy social milestones for readability."""
+    durable = [e for e in entries if e.kind in _DURABLE_TIMELINE_KINDS]
+    close = [e for e in entries if e.kind == "became_close"][-TIMELINE_MAX_BECAME_CLOSE:]
+    reunited = [e for e in entries if e.kind == "reunited"][-TIMELINE_MAX_REUNITED:]
+    first_met = [e for e in entries if e.kind == "first_met"][-TIMELINE_MAX_FIRST_MET:]
+    other = [
+        e
+        for e in entries
+        if e.kind
+        not in _DURABLE_TIMELINE_KINDS
+        and e.kind not in {"became_close", "reunited", "first_met"}
+    ]
+    merged = durable + close + reunited + first_met + other
+    merged.sort(key=lambda e: (e.day, e.text))
+    return _dedupe_timeline(merged)
+
+
+def citizen_timeline(world: World, person_id: int, limit: int = 24) -> list[TimelineEntry]:
+    """Chronological life timeline from recorded facts + initial placement."""
+    person = world.people[person_id]
+    entries: list[TimelineEntry] = []
+
+    # Prefer persisted day-1 events; fall back to synthesis for older worlds.
+    has_settled = any(e.kind == LifeEventKind.SETTLED_HOME for e in person.life_events)
+    has_started = any(e.kind == LifeEventKind.STARTED_JOB for e in person.life_events)
+    if not has_settled:
+        home = world.buildings[person.home_id]
+        entries.append(TimelineEntry(1, f"Lives at {home.name}", "home"))
+    if not has_started:
+        work = world.buildings[person.work_id]
+        entries.append(TimelineEntry(1, f"Works at {work.name}", "work"))
+
+    for event in person.life_events:
+        kind = event.kind.name.lower()
+        text = event.detail
+        if event.kind == LifeEventKind.SETTLED_HOME:
+            text = event.detail
+            kind = "settled_home"
+        elif event.kind == LifeEventKind.STARTED_JOB:
+            text = event.detail
+            kind = "started_job"
+        entries.append(TimelineEntry(event.day, text, kind))
+
+    # First meetings from bond events (reunions live on bonds, not citizen log).
+    for (a, b), rel in world.relationships.items():
+        if person_id not in (a, b):
+            continue
+        other_id = b if a == person_id else a
+        other = world.people[other_id]
+        for be in rel.bond_events:
+            if be.kind == "first_met":
+                entries.append(
+                    TimelineEntry(
+                        be.day,
+                        f"Met {other.name} {be.detail.replace('First met ', '')}",
+                        "first_met",
+                    )
+                )
+            elif be.kind == "became_close":
+                # Bond always records close; life_events may throttle duplicates.
+                entries.append(
+                    TimelineEntry(
+                        be.day,
+                        f"Became close with {other.name}",
+                        "became_close",
+                    )
+                )
+            elif be.kind == "reunited":
+                # Rare bond reunions may appear once via cap — not from life_events.
+                entries.append(
+                    TimelineEntry(
+                        be.day,
+                        f"Reunited with {other.name}",
+                        "reunited",
+                    )
+                )
+
+    entries = _cap_timeline_kinds(_dedupe_timeline(entries))
+    if limit > 0:
+        return entries[-limit:]
+    return entries
 
 
 def relationship_timeline(
@@ -162,13 +230,14 @@ def relationship_timeline(
     # Status snapshot lines (not invented history).
     if rel.first_met_total_minutes >= 0:
         last_day = minutes_to_day(rel.last_met_total_minutes)
+        social = social_meeting_count(rel)
         entries.append(
             TimelineEntry(
                 last_day,
                 (
                     f"Last seen day {last_day} · friendship {rel.friendship} "
-                    f"(peak {rel.peak_friendship}) · meetings {rel.times_met} "
-                    f"({social_meeting_count(rel)} social)"
+                    f"(peak {rel.peak_friendship}) · "
+                    f"{social} social / {rel.meetings_work} work colocations"
                 ),
                 "status",
             )
@@ -184,14 +253,7 @@ def relationship_timeline(
             )
 
     entries.sort(key=lambda e: (e.day, e.kind, e.text))
-    deduped: list[TimelineEntry] = []
-    seen: set[tuple[int, str]] = set()
-    for entry in entries:
-        key = (entry.day, entry.text)
-        if key in seen:
-            continue
-        seen.add(key)
-        deduped.append(entry)
+    deduped = _dedupe_timeline(entries)
     if limit > 0:
         return deduped[-limit:]
     return deduped
@@ -213,10 +275,12 @@ def relationship_detail_lines(
 
     rel = get_relationship(world, viewer_id, other_id)
     other = world.people[other_id]
+    social = social_meeting_count(rel)
     lines = [
         f"Bond: {other.name}",
         f"Friendship {rel.friendship} · peak {rel.peak_friendship}",
-        f"Meetings {rel.times_met} ({social_meeting_count(rel)} social)",
+        f"Social meetings: {social}",
+        f"Work colocations: {rel.meetings_work} (familiarity only)",
     ]
     last = days_since_met(world, rel)
     if last >= 10_000:
