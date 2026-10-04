@@ -4,6 +4,7 @@ import pygame
 
 from app import colors
 from app.camera import Camera
+from sim.systems.circumstances import circumstance_summary_lines, recent_life_event_lines
 from sim.systems.social import social_summary_lines
 from sim.types import BuildingKind, Person, TileKind
 from sim.world import World
@@ -167,8 +168,10 @@ def _person_inspector_lines(world: World, person: Person, following: bool) -> li
     ]
     if person.plan_notes:
         lines.append("Today: " + "; ".join(person.plan_notes))
+    lines.extend(circumstance_summary_lines(person))
     lines.extend(social_summary_lines(world, person.id))
-    if person.history:
+    lines.extend(recent_life_event_lines(person, limit=4))
+    if person.history and not person.life_events:
         lines.append("History:")
         for item in person.history[-4:]:
             lines.append(f"· {item}")

@@ -2,7 +2,7 @@
 
 A tiny 2D top-down **audience simulator**: watch a seeded town of ~50 citizens live ordinary days.
 
-Current scope: Milestones 1–5.5 — procedural town, commuting, mundane daily life (cafe/shop/pub/visits), persistent relationship memory with diminishing-return friendship (wide familiarity, scarce closeness, cooling/reactivation), and continuous follow mode.
+Current scope: Milestones 1–6 — procedural town, commuting, mundane daily life, persistent relationship memory (M5.5 diminishing friendship), and circumstances/life changes that reshape opportunity (illness, unemployment→new job, overwork, moving home) so social stories emerge without authored drama.
 
 Not included yet: romance, crime, murder, marriage, births, economy, quests.
 
@@ -45,6 +45,7 @@ The player is an observer only. There are no orders, objectives, or win conditio
 - After-work pub visits, shopping, or visits to another home
 - Different citizens developing different habits
 - Inspect: close companions (with meet counts / peak / last seen) vs work acquaintances vs cooled bonds
+- Circumstances: illness, job loss/change, overwork, moving home — and how they thin or shift meetings
 - Following one person through their day (`F`)
 
 ## Headless tests
@@ -58,7 +59,7 @@ pytest -q
 ```text
 sim/          # pure simulation (no pygame)
   generate/   # city, population, tendencies
-  systems/    # schedule, movement, social
+  systems/    # schedule, movement, social, circumstances
 app/          # pygame camera, render, UI loop
 tests/        # headless simulation tests
 main.py       # entry point
