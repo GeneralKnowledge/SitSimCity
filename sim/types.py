@@ -72,6 +72,47 @@ class Relationship:
     first_met_total_minutes: int = -1
     last_met_total_minutes: int = -10_000
     recent_contexts: list[str] = field(default_factory=list)
+    # True once friendship has ever crossed the close threshold (M6 inspector).
+    ever_close: bool = False
+    # Short deterministic notes about life changes that affected this bond.
+    story_notes: list[str] = field(default_factory=list)
+
+
+class CircumstanceKind(Enum):
+    SICK = auto()
+    UNEMPLOYED = auto()
+    OVERWORKED = auto()
+    RECENTLY_MOVED = auto()
+
+
+@dataclass
+class Circumstance:
+    """Temporary state that reshapes opportunity, not friendship math."""
+
+    kind: CircumstanceKind
+    start_day: int
+    end_day: int  # inclusive; removed when clock.day > end_day
+    note: str = ""
+
+
+class LifeEventKind(Enum):
+    BECAME_SICK = auto()
+    RECOVERED = auto()
+    BECAME_UNEMPLOYED = auto()
+    JOB_CHANGED = auto()
+    MOVED_HOME = auto()
+    BECAME_OVERWORKED = auto()
+    OVERWORK_ENDED = auto()
+    BECAME_CLOSE = auto()
+    REUNITED = auto()
+
+
+@dataclass(frozen=True)
+class LifeEvent:
+    kind: LifeEventKind
+    day: int
+    detail: str
+    related_person_id: int | None = None
 
 
 @dataclass
@@ -109,6 +150,9 @@ class Person:
     history: list[str] = field(default_factory=list)
     habit_evening: str | None = None  # home | pub | shop | cafe | visit
     favorite_visit_id: int | None = None
+    # M6: temporary circumstances + typed life-change log.
+    circumstances: list[Circumstance] = field(default_factory=list)
+    life_events: list[LifeEvent] = field(default_factory=list)
 
 
 # Walkable speed in tiles per simulated minute.
@@ -169,3 +213,22 @@ ACQUAINTANCE_FRIENDSHIP_MAX = 12
 STALE_PEAK_MIN = 20
 STALE_DAYS_APART = 3
 COOLING_LAST_SEEN_DAYS = 3
+
+# --- M6 circumstances (opportunity effects only; do not retune friendship math) ---
+SICK_DAILY_CHANCE = 0.012
+SICK_MIN_DAYS = 2
+SICK_MAX_DAYS = 5
+
+UNEMPLOYED_DAILY_CHANCE = 0.003
+UNEMPLOYED_MIN_DAYS = 3
+UNEMPLOYED_MAX_DAYS = 7
+
+OVERWORKED_DAILY_CHANCE = 0.008
+OVERWORKED_MIN_DAYS = 2
+OVERWORKED_MAX_DAYS = 4
+
+MOVE_DAILY_CHANCE = 0.0025
+RECENTLY_MOVED_DAYS = 5
+
+LIFE_EVENT_HISTORY_LIMIT = 24
+CIRCUMSTANCE_NOTE_LIMIT = 4

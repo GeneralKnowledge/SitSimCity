@@ -4,8 +4,9 @@ import random
 from typing import TYPE_CHECKING
 
 from sim.rng import make_rng
+from sim.systems.circumstances import has_circumstance, is_available_host
 from sim.systems.social import get_relationship, social_meeting_count
-from sim.types import Activity, BuildingKind, Person, ScheduleEntry
+from sim.types import Activity, BuildingKind, CircumstanceKind, Person, ScheduleEntry
 
 if TYPE_CHECKING:
     from sim.world import World
@@ -25,16 +26,27 @@ def build_daily_schedule(
     rng: random.Random,
 ) -> list[ScheduleEntry]:
     """Commute baseline plus a few tendency-weighted optional trips."""
+    # Circumstances reshape opportunity (stay home / skip outings / no job).
+    if has_circumstance(person, CircumstanceKind.SICK):
+        return _sick_day_schedule(person)
+
+    if has_circumstance(person, CircumstanceKind.UNEMPLOYED):
+        return _unemployed_day_schedule(world, person, rng)
+
     t = person.tendencies
+    overworked = has_circumstance(person, CircumstanceKind.OVERWORKED)
     leave_home = 7 * 60 + 20 + person.wake_offset_minutes
     leave_work = 17 * 60 + (person.wake_offset_minutes % 25)
+    if overworked:
+        leave_home -= 20
+        leave_work += 45
     notes: list[str] = []
     entries: list[ScheduleEntry] = [
         ScheduleEntry(0, Activity.SLEEP, person.home_id),
         ScheduleEntry(leave_home, Activity.WORK, person.work_id),
     ]
 
-    if _roll_lunch(person, rng):
+    if not overworked and _roll_lunch(person, rng):
         lunch_start = 12 * 60 + rng.randint(0, 25)
         place_id, place_activity, place_name = _pick_errand_place(
             world, rng, prefer_cafe=t.cafe_affinity >= t.shop_affinity
@@ -46,21 +58,67 @@ def build_daily_schedule(
             entries.append(ScheduleEntry(back, Activity.WORK, person.work_id))
             notes.append(f"Lunch at {place_name}")
 
-    evening = _decide_evening(world, person, rng)
-    if evening is None:
+    if overworked:
         entries.append(ScheduleEntry(leave_work, Activity.SLEEP, person.home_id))
-        notes.append("Straight home after work")
+        notes.append("Long day — straight home")
         _nudge_habit(person, "home")
     else:
-        activity, target_id, duration, label, habit_key, visit_id = evening
-        end = min(leave_work + duration, 22 * 60)
-        entries.append(ScheduleEntry(leave_work, activity, target_id))
-        entries.append(ScheduleEntry(end, Activity.SLEEP, person.home_id))
-        notes.append(label)
-        _nudge_habit(person, habit_key)
-        if visit_id is not None:
-            person.favorite_visit_id = visit_id
+        evening = _decide_evening(world, person, rng)
+        if evening is None:
+            entries.append(ScheduleEntry(leave_work, Activity.SLEEP, person.home_id))
+            notes.append("Straight home after work")
+            _nudge_habit(person, "home")
+        else:
+            activity, target_id, duration, label, habit_key, visit_id = evening
+            end = min(leave_work + duration, 22 * 60)
+            entries.append(ScheduleEntry(leave_work, activity, target_id))
+            entries.append(ScheduleEntry(end, Activity.SLEEP, person.home_id))
+            notes.append(label)
+            _nudge_habit(person, habit_key)
+            if visit_id is not None:
+                person.favorite_visit_id = visit_id
 
+    if has_circumstance(person, CircumstanceKind.RECENTLY_MOVED):
+        notes.insert(0, "Settling into new neighbourhood")
+
+    person.plan_notes = notes
+    entries.sort(key=lambda e: e.minute_of_day)
+    return entries
+
+
+def _sick_day_schedule(person: Person) -> list[ScheduleEntry]:
+    person.plan_notes = ["Home sick"]
+    return [
+        ScheduleEntry(0, Activity.SLEEP, person.home_id),
+        ScheduleEntry(9 * 60, Activity.AT_HOME, person.home_id),
+        ScheduleEntry(21 * 60, Activity.SLEEP, person.home_id),
+    ]
+
+
+def _unemployed_day_schedule(
+    world: World,
+    person: Person,
+    rng: random.Random,
+) -> list[ScheduleEntry]:
+    """No workplace commute; occasional amenity outing, else home."""
+    notes = ["Between jobs"]
+    entries: list[ScheduleEntry] = [
+        ScheduleEntry(0, Activity.SLEEP, person.home_id),
+        ScheduleEntry(8 * 60 + person.wake_offset_minutes, Activity.AT_HOME, person.home_id),
+    ]
+    # Light daytime errand sometimes — keeps a thin social thread without work.
+    if rng.random() < 0.35:
+        place_id, place_activity, place_name = _pick_errand_place(
+            world,
+            rng,
+            prefer_cafe=person.tendencies.cafe_affinity >= person.tendencies.shop_affinity,
+        )
+        start = 11 * 60 + rng.randint(0, 90)
+        end = start + 40 + rng.randint(0, 40)
+        entries.append(ScheduleEntry(start, place_activity, place_id))
+        entries.append(ScheduleEntry(end, Activity.AT_HOME, person.home_id))
+        notes.append(f"Out at {place_name}")
+    entries.append(ScheduleEntry(22 * 60, Activity.SLEEP, person.home_id))
     person.plan_notes = notes
     entries.sort(key=lambda e: e.minute_of_day)
     return entries
@@ -138,7 +196,14 @@ def _decide_evening(
         cafe_w *= 0.5
 
     # Sticky habits: people tend to repeat yesterday's ordinary choice.
+    # Recently moved people explore more — habit boost is muted.
     habit_boost = 90.0
+    if has_circumstance(person, CircumstanceKind.RECENTLY_MOVED):
+        habit_boost = 25.0
+        # Mild pull toward amenities while learning a new neighbourhood.
+        cafe_w += 20.0
+        shop_w += 15.0
+        pub_w += 10.0
     if person.habit_evening == "home":
         home_w += habit_boost
     elif person.habit_evening == "pub":
@@ -213,7 +278,11 @@ def _nudge_habit(person: Person, habit_key: str) -> None:
 
 
 def _pick_visit_target(world: World, person: Person, rng: random.Random) -> Person | None:
-    candidates = [p for p in world.people.values() if p.id != person.id]
+    candidates = [
+        p
+        for p in world.people.values()
+        if p.id != person.id and is_available_host(p)
+    ]
     if not candidates:
         return None
 
@@ -221,6 +290,7 @@ def _pick_visit_target(world: World, person: Person, rng: random.Random) -> Pers
     if (
         person.favorite_visit_id is not None
         and person.favorite_visit_id in world.people
+        and is_available_host(world.people[person.favorite_visit_id])
         and rng.random() < 0.8
     ):
         return world.people[person.favorite_visit_id]

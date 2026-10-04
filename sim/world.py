@@ -6,6 +6,7 @@ from sim.clock import Clock
 from sim.generate.city import CityLayout, generate_city
 from sim.generate.population import populate_city
 from sim.rng import make_rng
+from sim.systems.circumstances import tick_circumstances
 from sim.systems.movement import advance_movement, begin_travel
 from sim.systems.schedule import active_goal, assign_schedules
 from sim.systems.social import (
@@ -68,6 +69,7 @@ class World:
         rolled = self.clock.advance_one_minute()
         if rolled:
             apply_relationship_staleness(self)
+            tick_circumstances(self)
             assign_schedules(self)
             self._travel_targets.clear()
         for person_id in sorted(self.people):
