@@ -1,0 +1,53 @@
+from __future__ import annotations
+
+import random
+
+from sim.generate import names
+from sim.generate.city import CityLayout
+from sim.types import Activity, BuildingKind, Person
+
+
+def populate_city(
+    rng: random.Random,
+    layout: CityLayout,
+    citizen_count: int = 50,
+) -> dict[int, Person]:
+    homes = [b for b in layout.buildings.values() if b.kind == BuildingKind.HOME]
+    workplaces = [b for b in layout.buildings.values() if b.kind == BuildingKind.WORKPLACE]
+    if not homes or not workplaces:
+        raise ValueError("City needs homes and workplaces before population")
+
+    used_names: set[str] = set()
+    people: dict[int, Person] = {}
+    home_loads = {h.id: 0 for h in homes}
+    work_loads = {w.id: 0 for w in workplaces}
+
+    for i in range(citizen_count):
+        home = _pick_with_capacity(rng, homes, home_loads)
+        work = _pick_with_capacity(rng, workplaces, work_loads)
+        home_loads[home.id] += 1
+        work_loads[work.id] += 1
+        person_id = i + 1
+        people[person_id] = Person(
+            id=person_id,
+            name=names.person_name(rng, used_names),
+            age=rng.randint(22, 64),
+            home_id=home.id,
+            work_id=work.id,
+            occupation=work.occupation or rng.choice(names.OCCUPATIONS),
+            x=float(home.x),
+            y=float(home.y),
+            activity=Activity.SLEEP,
+            wake_offset_minutes=rng.randint(0, 40),
+        )
+    return people
+
+
+def _pick_with_capacity(rng: random.Random, buildings, loads: dict[int, int]):
+    candidates = [b for b in buildings if loads[b.id] < b.capacity]
+    if not candidates:
+        candidates = list(buildings)
+    # Prefer emptier buildings for a more even distribution.
+    candidates.sort(key=lambda b: (loads[b.id], b.id))
+    top = candidates[: max(1, len(candidates) // 3)]
+    return rng.choice(top)
