@@ -12,6 +12,7 @@ from sim.types import (
     AMENITY_HIGH_SOCIABILITY,
     AMENITY_HIGH_SOCIABILITY_BONUS,
     AMENITY_PUB_FRIENDSHIP_BASE,
+    BOND_EVENT_LIMIT,
     CLOSE_FRIENDSHIP_MIN,
     CLOSE_RECENT_DAYS,
     COOLING_LAST_SEEN_DAYS,
@@ -40,6 +41,7 @@ from sim.types import (
     WORK_FAMILIARITY_BUMP,
     WORK_FRIENDSHIP_BUMP,
     Activity,
+    BondEvent,
     Relationship,
 )
 
@@ -110,6 +112,7 @@ def process_colocations(world: World) -> None:
 def apply_relationship_staleness(world: World) -> None:
     """Decay current friendship when pairs stop meeting. Preserve totals and peak."""
     now = world.total_minutes()
+    day = world.clock.day
     for rel in world.relationships.values():
         if rel.times_met <= 0 or rel.first_met_total_minutes < 0:
             continue
@@ -123,7 +126,20 @@ def apply_relationship_staleness(world: World) -> None:
             decay = FRIENDSHIP_DECAY_EVER_CLOSE_PER_DAY
         else:
             decay = FRIENDSHIP_DECAY_PER_DAY
+        prev = rel.friendship
         rel.friendship = max(0, rel.friendship - decay)
+        # Observability only: note first cooling of an ever-close bond.
+        if (
+            rel.ever_close
+            and not rel.cooling_noted
+            and rel.friendship < prev
+            and rel.friendship < rel.peak_friendship * REACTIVATION_COOL_FRACTION
+        ):
+            rel.cooling_noted = True
+            append_bond_event(
+                rel,
+                BondEvent(day, "cooling", "Friendship began cooling", None),
+            )
 
 
 def _maybe_meet(world: World, a_id: int, b_id: int, total_minutes: int) -> None:
@@ -143,10 +159,21 @@ def _maybe_meet(world: World, a_id: int, b_id: int, total_minutes: int) -> None:
     )
     friend_bump = _apply_reactivation(rel, context, friend_bump, days_apart)
 
+    is_first_meeting = rel.first_met_total_minutes < 0
     rel.times_met += 1
     _increment_context_counter(rel, context)
-    if rel.first_met_total_minutes < 0:
+    if is_first_meeting:
         rel.first_met_total_minutes = total_minutes
+        rel.origin_context = context
+        append_bond_event(
+            rel,
+            BondEvent(
+                world.clock.day,
+                "first_met",
+                f"First met {_origin_phrase(context)}",
+                context,
+            ),
+        )
     rel.last_met_total_minutes = total_minutes
 
     was_cooled = _is_cooled(rel)
@@ -310,6 +337,28 @@ def _place_label(context: str) -> str:
     return "town"
 
 
+def append_bond_event(rel: Relationship, event: BondEvent) -> None:
+    rel.bond_events.append(event)
+    if len(rel.bond_events) > BOND_EVENT_LIMIT:
+        rel.bond_events = rel.bond_events[-BOND_EVENT_LIMIT:]
+
+
+def _origin_phrase(context: str | None) -> str:
+    if context == "work":
+        return "at work"
+    if context == "pub":
+        return "at the pub"
+    if context == "cafe":
+        return "at the cafe"
+    if context == "shop":
+        return "at the shop"
+    if context == "visit":
+        return "during a visit"
+    if context == "other":
+        return "around town"
+    return "in town"
+
+
 def _record_social_life_events(
     world: World,
     a,
@@ -333,6 +382,17 @@ def _record_social_life_events(
         and rel.friendship >= CLOSE_FRIENDSHIP_MIN
     ):
         rel.ever_close = True
+        rel.became_close_day = day
+        rel.close_context = context
+        append_bond_event(
+            rel,
+            BondEvent(
+                day,
+                "became_close",
+                f"Became close {_origin_phrase(context)}",
+                context,
+            ),
+        )
         record_life_event(
             a,
             LifeEvent(
@@ -361,6 +421,16 @@ def _record_social_life_events(
     ):
         # Sparse reunion notes for bonds that were once close.
         rel.last_reunion_day = day
+        rel.cooling_noted = False  # allow a later cooling note after recovery fades
+        append_bond_event(
+            rel,
+            BondEvent(
+                day,
+                "reunited",
+                f"Reunited {_origin_phrase(context)}",
+                context,
+            ),
+        )
         record_life_event(
             a,
             LifeEvent(
@@ -541,6 +611,8 @@ def social_summary_lines(world: World, person_id: int) -> list[str]:
         )
 
     if close:
+        from sim.systems.observe import origin_summary_lines
+
         parts = [f"{world.people[oid].name} ({place})" for oid, _rel, place in close]
         lines.append("Close with: " + ", ".join(parts))
         # Detail the strongest close companion only.
@@ -551,6 +623,8 @@ def social_summary_lines(world: World, person_id: int) -> list[str]:
         lines.append(
             f"  Friendship {rel.friendship} · peak {rel.peak_friendship} · last seen {last_bit}"
         )
+        for origin_line in origin_summary_lines(world, rel, person_id)[:2]:
+            lines.append(f"  {origin_line}")
         if rel.peak_friendship > rel.friendship + 5:
             lines.append("  Used to be closer")
         elif (
@@ -573,6 +647,8 @@ def social_summary_lines(world: World, person_id: int) -> list[str]:
             other_name = world.people[other_id].name.split()[0]
             lines.append(f"  {other_name}: {note[0].lower() + note[1:]}")
         hist = relationship_history_lines(rel, world, person_id)
+        # Avoid repeating origin lines already shown above.
+        hist = [h for h in hist if not h.strip().startswith("Origin:")]
         if hist:
             lines.append("  History:")
             lines.extend(hist[:4])

@@ -53,6 +53,16 @@ class Tendencies:
     routine_adherence: int
 
 
+@dataclass(frozen=True)
+class BondEvent:
+    """Sparse relationship milestone for observer timelines (not friendship math)."""
+
+    day: int
+    kind: str  # first_met | became_close | reunited | cooling | note
+    detail: str
+    context: str | None = None
+
+
 @dataclass
 class Relationship:
     """Persistent pairwise social memory. History events live on Person; this accumulates."""
@@ -76,8 +86,14 @@ class Relationship:
     ever_close: bool = False
     # Day of last recorded reunion event (-1 = never); throttles REUNITED spam.
     last_reunion_day: int = -1
+    # Explicit first-meeting / became-close contexts (M7: do not infer from counts).
+    origin_context: str | None = None
+    close_context: str | None = None
+    became_close_day: int = -1
+    cooling_noted: bool = False
     # Short deterministic notes about life changes that affected this bond.
     story_notes: list[str] = field(default_factory=list)
+    bond_events: list[BondEvent] = field(default_factory=list)
 
 
 class CircumstanceKind(Enum):
@@ -234,3 +250,4 @@ RECENTLY_MOVED_DAYS = 5
 
 LIFE_EVENT_HISTORY_LIMIT = 24
 CIRCUMSTANCE_NOTE_LIMIT = 4
+BOND_EVENT_LIMIT = 16
