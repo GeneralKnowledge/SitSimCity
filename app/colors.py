@@ -10,6 +10,7 @@ PANEL_BORDER = (90, 96, 108)
 TEXT = (230, 232, 236)
 MUTED = (160, 166, 176)
 SELECT = (255, 220, 90)
+FOLLOW = (120, 220, 160)
 
 BUILDING_FILL = {
     BuildingKind.HOME: (120, 92, 72),
@@ -27,4 +28,8 @@ PERSON_BY_ACTIVITY = {
     Activity.TRAVEL: (240, 210, 80),
     Activity.WORK: (100, 170, 220),
     Activity.WAIT: (200, 200, 120),
+    Activity.AT_CAFE: (230, 170, 90),
+    Activity.AT_SHOP: (130, 200, 130),
+    Activity.AT_PUB: (220, 120, 170),
+    Activity.VISITING: (180, 140, 230),
 }

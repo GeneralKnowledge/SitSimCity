@@ -4,6 +4,7 @@ import random
 
 from sim.generate import names
 from sim.generate.city import CityLayout
+from sim.generate.tendencies import roll_tendencies
 from sim.types import Activity, BuildingKind, Person
 
 
@@ -37,6 +38,7 @@ def populate_city(
             occupation=work.occupation or rng.choice(names.OCCUPATIONS),
             x=float(home.x),
             y=float(home.y),
+            tendencies=roll_tendencies(rng),
             activity=Activity.SLEEP,
             wake_offset_minutes=rng.randint(0, 40),
         )
@@ -47,7 +49,6 @@ def _pick_with_capacity(rng: random.Random, buildings, loads: dict[int, int]):
     candidates = [b for b in buildings if loads[b.id] < b.capacity]
     if not candidates:
         candidates = list(buildings)
-    # Prefer emptier buildings for a more even distribution.
     candidates.sort(key=lambda b: (loads[b.id], b.id))
     top = candidates[: max(1, len(candidates) // 3)]
     return rng.choice(top)

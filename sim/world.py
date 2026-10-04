@@ -8,7 +8,15 @@ from sim.generate.population import populate_city
 from sim.rng import make_rng
 from sim.systems.movement import advance_movement, begin_travel
 from sim.systems.schedule import active_goal, assign_schedules
-from sim.types import Activity, Building, Person, TileKind
+from sim.systems.social import process_colocations
+from sim.types import (
+    MINUTES_PER_DAY,
+    Activity,
+    Building,
+    Person,
+    Relationship,
+    TileKind,
+)
 
 
 @dataclass
@@ -20,8 +28,12 @@ class World:
     buildings: dict[int, Building]
     people: dict[int, Person]
     clock: Clock = field(default_factory=Clock)
+    relationships: dict[tuple[int, int], Relationship] = field(default_factory=dict)
     # Remember last pursued building so we do not repath every minute.
     _travel_targets: dict[int, int] = field(default_factory=dict)
+
+    def total_minutes(self) -> int:
+        return (self.clock.day - 1) * MINUTES_PER_DAY + self.clock.minute_of_day
 
     def is_walkable(self, x: int, y: int) -> bool:
         if not (0 <= x < self.width and 0 <= y < self.height):
@@ -51,10 +63,11 @@ class World:
     def step_once(self) -> None:
         rolled = self.clock.advance_one_minute()
         if rolled:
-            assign_schedules(self.people)
+            assign_schedules(self)
             self._travel_targets.clear()
         for person_id in sorted(self.people):
             self._step_person(self.people[person_id])
+        process_colocations(self)
 
     def _step_person(self, person: Person) -> None:
         goal = active_goal(person, self.clock.minute_of_day)
@@ -88,7 +101,6 @@ def create_world(seed: int = 42, citizen_count: int = 50) -> World:
     people_rng = make_rng(seed, "people")
     layout: CityLayout = generate_city(city_rng)
     people = populate_city(people_rng, layout, citizen_count=citizen_count)
-    assign_schedules(people)
     world = World(
         seed=seed,
         width=layout.width,
@@ -102,4 +114,5 @@ def create_world(seed: int = 42, citizen_count: int = 50) -> World:
         person.x = float(home.x)
         person.y = float(home.y)
         person.activity = Activity.SLEEP
+    assign_schedules(world)
     return world

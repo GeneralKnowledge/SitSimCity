@@ -12,7 +12,7 @@ from sim.world import World, create_world
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="SitSimCity — tiny autonomous commute prototype")
+    parser = argparse.ArgumentParser(description="SitSimCity — tiny autonomous town prototype")
     parser.add_argument("--seed", type=int, default=42, help="Town generation seed")
     parser.add_argument("--citizens", type=int, default=50, help="Citizen count")
     parser.add_argument("--width", type=int, default=1120, help="Window width")
@@ -33,6 +33,7 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
     _frame_city(camera, world, width, height)
     selected_id: int | None = None
     selected_building_id: int | None = None
+    following = False
     dragging = False
     drag_last = (0, 0)
 
@@ -43,11 +44,18 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                world, selected_id, selected_building_id, camera = _handle_key(
+                (
+                    world,
+                    selected_id,
+                    selected_building_id,
+                    following,
+                    camera,
+                ) = _handle_key(
                     event,
                     world,
                     selected_id,
                     selected_building_id,
+                    following,
                     camera,
                     width,
                     height,
@@ -59,10 +67,13 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
                         selected_id = pick_person(world, camera, event.pos)
                         selected_building_id = None
                         if selected_id is None:
+                            following = False
                             building = pick_building(world, camera, event.pos)
                             selected_building_id = building.id if building else None
+                        # Keep follow only if we clicked the followed person again / new person can be followed via F.
                     dragging = False
                 elif event.button == 2 or event.button == 3:
+                    following = False  # manual pan cancels follow
                     dragging = True
                     drag_last = event.pos
                 elif event.button == 4:
@@ -79,9 +90,17 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
                 drag_last = event.pos
 
         minutes = world.clock.consume_real_time(real_dt)
-        # Cap catch-up so extreme speeds stay responsive to input.
         if minutes > 0:
             world.step_minutes(min(minutes, 500))
+
+        if following and selected_id is not None and selected_id in world.people:
+            person = world.people[selected_id]
+            camera.center_on(
+                person.x * TILE + TILE / 2,
+                person.y * TILE + TILE / 2,
+                width,
+                height - BAR_HEIGHT,
+            )
 
         draw_world(
             screen,
@@ -89,6 +108,7 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
             camera,
             selected_id,
             selected_building_id,
+            following,
             font,
             small_font,
         )
@@ -102,13 +122,14 @@ def _handle_key(
     world: World,
     selected_id: int | None,
     selected_building_id: int | None,
+    following: bool,
     camera: Camera,
     width: int,
     height: int,
     citizens: int,
-) -> tuple[World, int | None, int | None, Camera]:
+) -> tuple[World, int | None, int | None, bool, Camera]:
     if event.key == pygame.K_ESCAPE:
-        return world, None, None, camera
+        return world, None, None, False, camera
     if event.key == pygame.K_SPACE:
         world.clock.toggle_pause()
     elif event.key in (pygame.K_LEFTBRACKET, pygame.K_MINUS):
@@ -120,24 +141,31 @@ def _handle_key(
         world = create_world(seed=world.seed + 1, citizen_count=citizens)
         selected_id = None
         selected_building_id = None
+        following = False
         _frame_city(camera, world, width, height)
         pygame.display.set_caption(f"SitSimCity — seed {world.seed}")
     elif event.key == pygame.K_r:
         world = create_world(seed=world.seed, citizen_count=citizens)
         selected_id = None
         selected_building_id = None
+        following = False
         _frame_city(camera, world, width, height)
-    elif event.key == pygame.K_f and selected_id is not None:
-        person = world.people[selected_id]
-        camera.center_on(
-            person.x * TILE + TILE / 2,
-            person.y * TILE + TILE / 2,
-            width,
-            height - BAR_HEIGHT,
-        )
+    elif event.key == pygame.K_f:
+        if selected_id is not None:
+            following = not following
+            if following:
+                person = world.people[selected_id]
+                camera.center_on(
+                    person.x * TILE + TILE / 2,
+                    person.y * TILE + TILE / 2,
+                    width,
+                    height - BAR_HEIGHT,
+                )
+        else:
+            following = False
     elif pygame.K_1 <= event.key <= pygame.K_7:
         world.clock.speed = SPEED_STEPS[event.key - pygame.K_1]
-    return world, selected_id, selected_building_id, camera
+    return world, selected_id, selected_building_id, following, camera
 
 
 def _frame_city(camera: Camera, world: World, width: int, height: int) -> None:
