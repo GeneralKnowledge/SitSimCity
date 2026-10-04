@@ -94,6 +94,10 @@ class Person:
     # Short labels for today's optional plans (for inspect UI / debugging).
     plan_notes: list[str] = field(default_factory=list)
     recent_meetings: list[str] = field(default_factory=list)
+    # Mundane memory: sticky habits + a short discoverable history log.
+    history: list[str] = field(default_factory=list)
+    habit_evening: str | None = None  # home | pub | shop | cafe | visit
+    favorite_visit_id: int | None = None
 
 
 # Walkable speed in tiles per simulated minute.

@@ -172,6 +172,10 @@ def _person_inspector_lines(world: World, person: Person, following: bool) -> li
         lines.append("Friends:")
         for name, friendship, times in friends:
             lines.append(f"· {name}  ({friendship}, met {times})")
+    if person.history:
+        lines.append("History:")
+        for item in person.history[-4:]:
+            lines.append(f"· {item}")
     elif person.recent_meetings:
         lines.append("Recent: " + person.recent_meetings[-1])
     lines.append("Observer only — no orders.")

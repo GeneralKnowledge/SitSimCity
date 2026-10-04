@@ -13,6 +13,13 @@ from sim.types import (
 if TYPE_CHECKING:
     from sim.world import World
 
+AMENITY_ACTIVITIES = {
+    Activity.AT_PUB,
+    Activity.AT_CAFE,
+    Activity.AT_SHOP,
+    Activity.VISITING,
+}
+
 
 def relationship_key(a_id: int, b_id: int) -> tuple[int, int]:
     return (a_id, b_id) if a_id < b_id else (b_id, a_id)
@@ -53,10 +60,17 @@ def _maybe_meet(world: World, a_id: int, b_id: int, total_minutes: int) -> None:
 
     a = world.people[a_id]
     b = world.people[b_id]
-    # Tiny bumps: offices create many meetings, so keep growth slow.
-    bump = 1
-    if a.tendencies.sociability >= 80 and b.tendencies.sociability >= 80:
-        bump = 2
+    at_amenity = a.activity in AMENITY_ACTIVITIES and b.activity in AMENITY_ACTIVITIES
+
+    # Offices create many meetings — keep those tiny. After-work places matter more.
+    if at_amenity:
+        bump = 3
+        if a.tendencies.sociability >= 70 and b.tendencies.sociability >= 70:
+            bump = 4
+    else:
+        bump = 1
+        if a.tendencies.sociability >= 80 and b.tendencies.sociability >= 80:
+            bump = 2
 
     rel.friendship = min(FRIENDSHIP_MAX, rel.friendship + bump)
     rel.times_met += 1
@@ -65,12 +79,49 @@ def _maybe_meet(world: World, a_id: int, b_id: int, total_minutes: int) -> None:
     _remember_meeting(a, b.name)
     _remember_meeting(b, a.name)
 
+    if at_amenity:
+        place = _place_label(a.activity)
+        _append_history(a, f"Saw {b.name} at {place}")
+        _append_history(b, f"Saw {a.name} at {place}")
+
+
+def _place_label(activity: Activity) -> str:
+    if activity == Activity.AT_PUB:
+        return "the pub"
+    if activity == Activity.AT_CAFE:
+        return "the cafe"
+    if activity == Activity.AT_SHOP:
+        return "the shop"
+    if activity == Activity.VISITING:
+        return "a visit"
+    return "town"
+
 
 def _remember_meeting(person, other_name: str) -> None:
     note = f"Met {other_name}"
     person.recent_meetings.append(note)
     if len(person.recent_meetings) > 8:
         person.recent_meetings = person.recent_meetings[-8:]
+
+
+def _append_history(person, line: str) -> None:
+    if person.history and person.history[-1] == line:
+        return
+    person.history.append(line)
+    if len(person.history) > 12:
+        person.history = person.history[-12:]
+
+
+def record_arrival(person, activity: Activity, place_name: str) -> None:
+    """Log a mundane arrival so follow/inspect can show a life unfolding."""
+    if activity == Activity.AT_PUB:
+        _append_history(person, f"Went to {place_name}")
+    elif activity == Activity.AT_CAFE:
+        _append_history(person, f"Stopped at {place_name}")
+    elif activity == Activity.AT_SHOP:
+        _append_history(person, f"Shopped at {place_name}")
+    elif activity == Activity.VISITING:
+        _append_history(person, f"Visited {place_name}")
 
 
 def top_friends(world: World, person_id: int, limit: int = 3) -> list[tuple[str, int, int]]:

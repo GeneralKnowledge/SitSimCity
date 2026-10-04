@@ -110,3 +110,41 @@ def test_evening_outings_finish_by_late_night() -> None:
     counts = Counter(p.activity for p in world.people.values())
     assert counts[Activity.SLEEP] >= 45
     assert counts.get(Activity.AT_PUB, 0) + counts.get(Activity.VISITING, 0) <= 5
+
+
+def test_evening_habits_become_sticky() -> None:
+    world = create_world(seed=8, citizen_count=50)
+    world.step_minutes(8 * 1440)
+    habitual = [
+        p
+        for p in world.people.values()
+        if p.habit_evening in {"pub", "visit", "home", "cafe", "shop"}
+    ]
+    assert len(habitual) >= 40
+    # Someone who likes the pub should often lock onto that habit.
+    pub_habits = [p for p in world.people.values() if p.habit_evening == "pub"]
+    assert pub_habits
+
+
+def test_repeat_visits_can_stick_to_one_host() -> None:
+    world = create_world(seed=26, citizen_count=50)
+    visit_days = Counter()
+    for _ in range(10):
+        for person in world.people.values():
+            for note in person.plan_notes:
+                if note.startswith("Visit "):
+                    visit_days[(person.id, note)] += 1
+        world.step_minutes(1440)
+    assert max(visit_days.values(), default=0) >= 3
+
+
+def test_amenity_meetings_write_history() -> None:
+    world = create_world(seed=8, citizen_count=50)
+    world.step_minutes(6 * 1440)
+    with_history = [p for p in world.people.values() if p.history]
+    assert with_history
+    assert any(
+        "pub" in line.lower() or "cafe" in line.lower() or "Visited" in line or "Saw " in line
+        for p in with_history
+        for line in p.history
+    )
