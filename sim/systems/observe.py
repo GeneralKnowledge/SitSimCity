@@ -275,12 +275,9 @@ def relationship_detail_lines(
 
     rel = get_relationship(world, viewer_id, other_id)
     other = world.people[other_id]
-    social = social_meeting_count(rel)
     lines = [
         f"Bond: {other.name}",
         f"Friendship {rel.friendship} · peak {rel.peak_friendship}",
-        f"Social meetings: {social}",
-        f"Work colocations: {rel.meetings_work} (familiarity only)",
     ]
     last = days_since_met(world, rel)
     if last >= 10_000:
@@ -289,6 +286,7 @@ def relationship_detail_lines(
         lines.append("Last seen: today")
     else:
         lines.append(f"Last seen: {last} day{'s' if last != 1 else ''} ago")
+    # Origin block includes social meetings / work colocations (no duplicate totals).
     lines.extend(origin_summary_lines(world, rel, viewer_id))
     lines.extend(
         timeline_lines(
