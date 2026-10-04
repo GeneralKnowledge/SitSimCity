@@ -353,10 +353,14 @@ def _record_social_life_events(
         )
     elif (
         was_cooled
+        and rel.ever_close
         and friend_bump > 0
-        and days_apart >= REACTIVATION_MIN_DAYS_APART
+        and days_apart >= FRIENDSHIP_DECAY_EVER_CLOSE_AFTER_DAYS
         and context in AMENITY_CONTEXT_NAMES
+        and (rel.last_reunion_day < 0 or day - rel.last_reunion_day >= 28)
     ):
+        # Sparse reunion notes for bonds that were once close.
+        rel.last_reunion_day = day
         record_life_event(
             a,
             LifeEvent(

@@ -74,6 +74,8 @@ class Relationship:
     recent_contexts: list[str] = field(default_factory=list)
     # True once friendship has ever crossed the close threshold (M6 inspector).
     ever_close: bool = False
+    # Day of last recorded reunion event (-1 = never); throttles REUNITED spam.
+    last_reunion_day: int = -1
     # Short deterministic notes about life changes that affected this bond.
     story_notes: list[str] = field(default_factory=list)
 

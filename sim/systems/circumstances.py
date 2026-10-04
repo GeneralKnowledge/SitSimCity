@@ -332,8 +332,25 @@ def circumstance_summary_lines(person: Person) -> list[str]:
 def recent_life_event_lines(person: Person, limit: int = 4) -> list[str]:
     if not person.life_events:
         return []
+    # Prefer durable life changes over frequent social milestones in the panel.
+    life_change = {
+        LifeEventKind.BECAME_SICK,
+        LifeEventKind.RECOVERED,
+        LifeEventKind.BECAME_UNEMPLOYED,
+        LifeEventKind.JOB_CHANGED,
+        LifeEventKind.MOVED_HOME,
+        LifeEventKind.BECAME_OVERWORKED,
+        LifeEventKind.OVERWORK_ENDED,
+    }
+    changes = [e for e in person.life_events if e.kind in life_change]
+    social = [e for e in person.life_events if e.kind not in life_change]
+    chosen = changes[-(limit - 1) :] if limit > 1 else []
+    remaining = limit - len(chosen)
+    if remaining > 0:
+        chosen = chosen + social[-remaining:]
+    chosen.sort(key=lambda e: e.day)
     lines = ["Recent events:"]
-    for event in person.life_events[-limit:]:
+    for event in chosen[-limit:]:
         lines.append(f"  {event.detail} — day {event.day}")
     return lines
 
@@ -344,10 +361,13 @@ def relationship_history_lines(rel, world: World, viewer_id: int) -> list[str]:
     social = (
         rel.meetings_pub + rel.meetings_cafe + rel.meetings_shop + rel.meetings_visit
     )
-    if rel.meetings_work > 0 and rel.meetings_work >= social:
+    # Prefer social origin when the bond actually has amenity/visit meetings.
+    if social > 0 and rel.meetings_work > social * 2:
         lines.append("  Met through work")
     elif social > 0:
         lines.append("  Met socially in town")
+    elif rel.meetings_work > 0:
+        lines.append("  Met through work")
     if rel.ever_close or rel.peak_friendship >= 20:
         lines.append("  Became close")
     for note in rel.story_notes[-2:]:
@@ -362,7 +382,7 @@ def relationship_history_lines(rel, world: World, viewer_id: int) -> list[str]:
     other_id = rel.b_id if rel.a_id == viewer_id else rel.a_id
     for pid in (viewer_id, other_id):
         person = world.people[pid]
-        for event in reversed(person.life_events[-6:]):
+        for event in reversed(person.life_events[-8:]):
             if (
                 event.kind == LifeEventKind.REUNITED
                 and event.related_person_id in (viewer_id, other_id)
