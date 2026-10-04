@@ -8,7 +8,11 @@ from sim.generate.population import populate_city
 from sim.rng import make_rng
 from sim.systems.movement import advance_movement, begin_travel
 from sim.systems.schedule import active_goal, assign_schedules
-from sim.systems.social import process_colocations
+from sim.systems.social import (
+    apply_relationship_staleness,
+    process_colocations,
+    record_arrival,
+)
 from sim.types import (
     MINUTES_PER_DAY,
     Activity,
@@ -63,6 +67,7 @@ class World:
     def step_once(self) -> None:
         rolled = self.clock.advance_one_minute()
         if rolled:
+            apply_relationship_staleness(self)
             assign_schedules(self)
             self._travel_targets.clear()
         for person_id in sorted(self.people):
@@ -82,8 +87,11 @@ class World:
         )
 
         if at_target:
+            previous = person.activity
             person.activity = goal.activity
             self._travel_targets.pop(person.id, None)
+            if previous != goal.activity:
+                record_arrival(person, goal.activity, target.name)
             return
 
         if self._travel_targets.get(person.id) != goal.target_building_id:
@@ -92,8 +100,11 @@ class World:
 
         arrived = advance_movement(person)
         if arrived:
+            previous = person.activity
             person.activity = goal.activity
             self._travel_targets.pop(person.id, None)
+            if previous != goal.activity:
+                record_arrival(person, goal.activity, target.name)
 
 
 def create_world(seed: int = 42, citizen_count: int = 50) -> World:

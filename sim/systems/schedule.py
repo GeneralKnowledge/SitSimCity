@@ -4,7 +4,7 @@ import random
 from typing import TYPE_CHECKING
 
 from sim.rng import make_rng
-from sim.systems.social import get_relationship
+from sim.systems.social import get_relationship, social_meeting_count
 from sim.types import Activity, BuildingKind, Person, ScheduleEntry
 
 if TYPE_CHECKING:
@@ -50,12 +50,16 @@ def build_daily_schedule(
     if evening is None:
         entries.append(ScheduleEntry(leave_work, Activity.SLEEP, person.home_id))
         notes.append("Straight home after work")
+        _nudge_habit(person, "home")
     else:
-        activity, target_id, duration, label = evening
+        activity, target_id, duration, label, habit_key, visit_id = evening
         end = min(leave_work + duration, 22 * 60)
         entries.append(ScheduleEntry(leave_work, activity, target_id))
         entries.append(ScheduleEntry(end, Activity.SLEEP, person.home_id))
         notes.append(label)
+        _nudge_habit(person, habit_key)
+        if visit_id is not None:
+            person.favorite_visit_id = visit_id
 
     person.plan_notes = notes
     entries.sort(key=lambda e: e.minute_of_day)
@@ -118,7 +122,8 @@ def _decide_evening(
     world: World,
     person: Person,
     rng: random.Random,
-) -> tuple[Activity, int, int, str] | None:
+) -> tuple[Activity, int, int, str, str, int | None] | None:
+    """Returns activity details plus habit key and optional visit target id."""
     t = person.tendencies
     home_w = 25 + t.homebody * 0.75 + t.routine_adherence * 0.35
     pub_w = t.pub_affinity * (1.0 - t.homebody / 220.0)
@@ -126,12 +131,36 @@ def _decide_evening(
     cafe_w = t.cafe_affinity * 0.30
     visit_w = t.sociability * 0.60
 
-    # Strong homebodies rarely linger out.
     if t.homebody >= 80:
         pub_w *= 0.25
         visit_w *= 0.45
         shop_w *= 0.5
         cafe_w *= 0.5
+
+    # Sticky habits: people tend to repeat yesterday's ordinary choice.
+    habit_boost = 90.0
+    if person.habit_evening == "home":
+        home_w += habit_boost
+    elif person.habit_evening == "pub":
+        pub_w += habit_boost
+    elif person.habit_evening == "shop":
+        shop_w += habit_boost * 0.8
+    elif person.habit_evening == "cafe":
+        cafe_w += habit_boost * 0.8
+    elif person.habit_evening == "visit":
+        visit_w += habit_boost
+
+    # Soft pull toward the pub if a close friend likes drinking there (capped).
+    best_friend_pub_pull = 0.0
+    for (a, b), rel in world.relationships.items():
+        if rel.friendship < 18 or person.id not in (a, b):
+            continue
+        other = world.people[b if a == person.id else a]
+        if other.tendencies.pub_affinity >= 60 or other.habit_evening == "pub":
+            best_friend_pub_pull = max(
+                best_friend_pub_pull, 10 + rel.friendship * 0.15
+            )
+    pub_w += best_friend_pub_pull
 
     choices: list[tuple[float, str]] = [
         (max(0.1, home_w), "home"),
@@ -141,7 +170,6 @@ def _decide_evening(
         (max(0.0, visit_w), "visit"),
     ]
     pick = _weighted_choice(rng, choices)
-    # Long enough to watch, short enough to stay "an errand" not a new life.
     duration = 50 + rng.randint(0, 55)
 
     if pick == "home":
@@ -151,19 +179,19 @@ def _decide_evening(
         if not pubs:
             return None
         b = rng.choice(pubs)
-        return Activity.AT_PUB, b.id, duration + 15, f"Pub: {b.name}"
+        return Activity.AT_PUB, b.id, duration + 15, f"Pub: {b.name}", "pub", None
     if pick == "shop":
         shops = _buildings_of_kind(world, BuildingKind.SHOP)
         if not shops:
             return None
         b = rng.choice(shops)
-        return Activity.AT_SHOP, b.id, duration, f"Shop: {b.name}"
+        return Activity.AT_SHOP, b.id, duration, f"Shop: {b.name}", "shop", None
     if pick == "cafe":
         cafes = _buildings_of_kind(world, BuildingKind.CAFE)
         if not cafes:
             return None
         b = rng.choice(cafes)
-        return Activity.AT_CAFE, b.id, duration, f"Cafe: {b.name}"
+        return Activity.AT_CAFE, b.id, duration, f"Cafe: {b.name}", "cafe", None
 
     target = _pick_visit_target(world, person, rng)
     if target is None:
@@ -175,7 +203,13 @@ def _decide_evening(
         home.id,
         visit_duration,
         f"Visit {target.name}",
+        "visit",
+        target.id,
     )
+
+
+def _nudge_habit(person: Person, habit_key: str) -> None:
+    person.habit_evening = habit_key
 
 
 def _pick_visit_target(world: World, person: Person, rng: random.Random) -> Person | None:
@@ -183,14 +217,24 @@ def _pick_visit_target(world: World, person: Person, rng: random.Random) -> Pers
     if not candidates:
         return None
 
+    # Once someone has a favourite host, usually keep visiting them.
+    if (
+        person.favorite_visit_id is not None
+        and person.favorite_visit_id in world.people
+        and rng.random() < 0.8
+    ):
+        return world.people[person.favorite_visit_id]
+
     weights: list[float] = []
     for other in candidates:
         rel = get_relationship(world, person.id, other.id)
-        weight = 1.0 + rel.friendship * 2.0 + rel.times_met
+        # Genuine friendship + social meetings matter; work familiarity does not.
+        weight = 1.0 + rel.friendship * 2.0 + social_meeting_count(rel) * 0.5
         if other.work_id == person.work_id:
-            weight += 8.0
+            weight += 6.0  # mild acquaintance bias, not friendship
+        if person.favorite_visit_id == other.id:
+            weight += 40.0
         weight += other.tendencies.sociability * 0.05
-        # Homebodies are slightly less attractive visit targets.
         weight *= 1.0 - other.tendencies.homebody * 0.003
         weights.append(max(0.1, weight))
 
