@@ -99,8 +99,10 @@ def test_citizen_timeline_ordered_and_includes_baseline() -> None:
     entries = citizen_timeline(world, person.id, limit=20)
     days = [e.day for e in entries]
     assert days == sorted(days)
-    assert any("Lives at" in e.text for e in entries)
-    assert any("Works at" in e.text for e in entries)
+    home = world.buildings[person.home_id].name
+    work = world.buildings[person.work_id].name
+    assert any(home in e.text for e in entries)
+    assert any(work in e.text for e in entries)
     assert any("Fell ill" in e.text for e in entries)
     texts = [e.text for e in entries]
     assert texts.index(next(t for t in texts if "Fell ill" in t)) < texts.index(

@@ -164,8 +164,12 @@ def test_inspector_shows_relationship_continuity() -> None:
         subject = world.people[a_id]
     lines = social_summary_lines(world, subject.id)
     joined = "\n".join(lines)
-    assert "Close with:" in joined or "At work knows:" in joined or "Often sees:" in joined
-    if "Close with:" in joined:
-        assert "Met " in joined
-        assert "Friendship " in joined
-        assert "peak " in joined
+    assert (
+        "Close with " in joined
+        or "Knows from work:" in joined
+        or "Often sees:" in joined
+    )
+    assert "Friendship " not in joined
+    assert "Social meetings:" not in joined
+    if "Close with " in joined:
+        assert "Last seen " in joined or "Mostly " in joined

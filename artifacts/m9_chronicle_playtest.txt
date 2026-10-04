@@ -1,0 +1,119 @@
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+SitSimCity M9 chronicle dump · seed 7 · day 31
+
+========================================================================
+Tess / named follow: Tess Nelson (id=40) · day 31
+========================================================================
+
+--- Day-1 / durable life details (sample) ---
+  d1 SETTLED_HOME: Took rooms at 3 Mill Road
+  d1 STARTED_JOB: Started work at Mill Road Dispatch
+  d10 MOVED_HOME: Packed up at 3 Mill Road; keys now for 3 Pine Court
+
+--- Social summary (default inhabit) ---
+  Often sees: Dan Parker at the shop
+  Knows from work: Kate Young, Tina Morgan, Vince Clark
+
+--- Compact follow ---
+  Tess Nelson  ·  FOLLOWING
+  Accountant · age 64
+  Shift · day
+  Now: Sleep
+  Home · 3 Pine Court
+  Work · Mill Road Dispatch
+  Today: Lunch at Market Row; Pub: Evening Bell
+  Often sees: Dan Parker at the shop
+  Recent events:
+    Packed up at 3 Mill Road; keys now for 3 Pine Court — day 10
+  Sit with them — T timeline · J bond
+
+--- Compact + T (timeline under card) ---
+  Tess Nelson  ·  FOLLOWING
+  Accountant · age 64
+  Shift · day
+  Now: Sleep
+  Home · 3 Pine Court
+  Work · Mill Road Dispatch
+  Today: Lunch at Market Row; Pub: Evening Bell
+  Often sees: Dan Parker at the shop
+  Recent events:
+    Packed up at 3 Mill Road; keys now for 3 Pine Court — day 10
+  Life timeline (T):
+    Day 1: Started work at Mill Road Dispatch
+    Day 1: Took rooms at 3 Mill Road
+    Day 5: Met Bob Jones — bumped into each other at the shop
+    Day 10: Packed up at 3 Mill Road; keys now for 3 Pine Court
+    Day 14: Met Vera Bailey — exchanged nods at the shop
+    Day 16: Met Carol Allen — bumped into each other at the shop
+    14 days ago: Met Sam Hill — fell into conversation at the pub
+
+--- CRM demotion checks ---
+  compact+T CRM markers: none
+  social summary CRM markers: none
+  compact+T has Traits: False
+  inspect has Traits: True
+
+========================================================================
+Quiet citizen: Zoe Bell (id=3) · day 31
+========================================================================
+
+--- Day-1 / durable life details (sample) ---
+  d1 SETTLED_HOME: Made a home at 1 Chapel Street
+  d1 STARTED_JOB: Joined Town Ledger
+
+--- Social summary (default inhabit) ---
+  Often sees: Vera Parker at the pub
+  Knows from work: Uma Moore, Seth King, Grace Hall
+
+--- Compact follow ---
+  Zoe Bell  ·  FOLLOWING
+  Baker · age 24
+  Shift · day
+  Now: Sleep
+  Home · 1 Chapel Street
+  Work · Town Ledger
+  Today: Visit Vince Clark
+  Often sees: Vera Parker at the pub
+  Sit with them — T timeline · J bond
+
+--- Compact + T (timeline under card) ---
+  Zoe Bell  ·  FOLLOWING
+  Baker · age 24
+  Shift · day
+  Now: Sleep
+  Home · 1 Chapel Street
+  Work · Town Ledger
+  Today: Visit Vince Clark
+  Often sees: Vera Parker at the pub
+  Life timeline (T):
+    Day 1: Joined Town Ledger
+    Day 1: Made a home at 1 Chapel Street
+    Day 10: Met Yvonne Nelson — fell into conversation at the pub
+    Day 12: Met Jon Harris — fell into conversation at the pub
+    6 days ago: Met Tina Morgan — struck up talk over cups at the cafe
+    4 days ago: Met Xander Cook — shared a quiet drink and a few words at the pub
+
+--- CRM demotion checks ---
+  compact+T CRM markers: none
+  social summary CRM markers: none
+  compact+T has Traits: False
+  inspect has Traits: True
+
+========================================================================
+Town-wide durable event samples (first 12 found)
+========================================================================
+  Yvonne Nelson: Fell ill and kept to the house
+  Yvonne Nelson: Was back on their feet
+  Kate Young: Came home too tired to be anyone's company
+  Kate Young: The long days finally eased
+  Yvonne Murphy: Came down with something and cancelled the week
+  Yvonne Murphy: The illness finally let go
+  Quinn Taylor: Left Pine Court Studio without another shift to go to
+  Quinn Taylor: Traded Pine Court Studio for a desk at Town Ledger
+  Quinn Taylor: The job ate the evenings
+  Quinn Taylor: The long days finally eased
+  Quinn Baker: Fell ill and kept to the house
+  Quinn Baker: The illness finally let go
+
+Verdict: PASS — chronicle voice, CRM demoted

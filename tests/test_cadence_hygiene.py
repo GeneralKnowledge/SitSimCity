@@ -32,8 +32,10 @@ def test_day1_placement_persisted_as_life_events() -> None:
     assert LifeEventKind.SETTLED_HOME in kinds
     assert LifeEventKind.STARTED_JOB in kinds
     entries = citizen_timeline(world, person.id, limit=20)
-    assert any("Lives at" in e.text for e in entries)
-    assert any("Works at" in e.text for e in entries)
+    home = world.buildings[person.home_id].name
+    work = world.buildings[person.work_id].name
+    assert any(home in e.text for e in entries)
+    assert any(work in e.text for e in entries)
 
 
 def test_reunited_not_written_to_life_events() -> None:
@@ -120,13 +122,14 @@ def test_work_vs_social_meeting_clarity() -> None:
     lines = origin_summary_lines(world, rel, a_id)
     joined = "\n".join(lines)
     assert "Origin: Café" in joined or "Origin: Cafe" in joined
-    assert "Social meetings:" in joined
+    assert "Social meetings:" not in joined
     assert "Work colocations:" not in joined
     detail = "\n".join(relationship_detail_lines(world, a_id, b_id))
-    assert "Social meetings:" in detail
+    assert "Social meetings:" not in detail
     assert "Work colocations:" not in detail
     # Diagnostic path still exposes raw counts when asked.
     verbose = "\n".join(origin_summary_lines(world, rel, a_id, verbose_work=True))
+    assert "Social meetings:" in verbose
     assert "Work colocations:" in verbose
     assert "familiarity only" in verbose.lower() or "no friendship" in verbose.lower()
 

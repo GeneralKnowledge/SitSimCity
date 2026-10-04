@@ -136,9 +136,13 @@ def apply_relationship_staleness(world: World) -> None:
             and rel.friendship < rel.peak_friendship * REACTIVATION_COOL_FRACTION
         ):
             rel.cooling_noted = True
+            from sim.systems.chronicle import pick_phrase
+            from sim.rng import make_rng
+
+            cool_rng = make_rng(world.seed, f"chronicle-cool-d{day}-{rel.a_id}-{rel.b_id}")
             append_bond_event(
                 rel,
-                BondEvent(day, "cooling", "Friendship began cooling", None),
+                BondEvent(day, "cooling", pick_phrase(cool_rng, "cooling"), None),
             )
 
 
@@ -163,14 +167,20 @@ def _maybe_meet(world: World, a_id: int, b_id: int, total_minutes: int) -> None:
     rel.times_met += 1
     _increment_context_counter(rel, context)
     if is_first_meeting:
+        from sim.systems.chronicle import first_met_key, pick_phrase
+        from sim.rng import make_rng
+
         rel.first_met_total_minutes = total_minutes
         rel.origin_context = context
+        meet_rng = make_rng(
+            world.seed, f"chronicle-meet-d{world.clock.day}-{a_id}-{b_id}"
+        )
         append_bond_event(
             rel,
             BondEvent(
                 world.clock.day,
                 "first_met",
-                f"First met {_origin_phrase(context)}",
+                pick_phrase(meet_rng, first_met_key(context)),
                 context,
             ),
         )
@@ -344,6 +354,11 @@ def append_bond_event(rel: Relationship, event: BondEvent) -> None:
 
 
 def _origin_phrase(context: str | None) -> str:
+    """Short place clause for display assembly (legacy helper name)."""
+    return place_clause(context)
+
+
+def place_clause(context: str | None) -> str:
     if context == "work":
         return "at work"
     if context == "pub":
@@ -375,6 +390,13 @@ def _record_social_life_events(
     from sim.systems.circumstances import record_life_event
     from sim.types import LifeEvent, LifeEventKind
 
+    from sim.systems.chronicle import (
+        became_close_key,
+        pick_phrase,
+        reunited_key,
+    )
+    from sim.rng import make_rng
+
     day = world.clock.day
     if (
         not rel.ever_close
@@ -384,12 +406,13 @@ def _record_social_life_events(
         rel.ever_close = True
         rel.became_close_day = day
         rel.close_context = context
+        close_rng = make_rng(world.seed, f"chronicle-close-d{day}-{a.id}-{b.id}")
         append_bond_event(
             rel,
             BondEvent(
                 day,
                 "became_close",
-                f"Became close {_origin_phrase(context)}",
+                pick_phrase(close_rng, became_close_key(context)),
                 context,
             ),
         )
@@ -398,7 +421,7 @@ def _record_social_life_events(
             LifeEvent(
                 LifeEventKind.BECAME_CLOSE,
                 day,
-                f"Became close with {b.name}",
+                pick_phrase(close_rng, "became_close_with", name=b.name),
                 related_person_id=b.id,
             ),
         )
@@ -407,7 +430,7 @@ def _record_social_life_events(
             LifeEvent(
                 LifeEventKind.BECAME_CLOSE,
                 day,
-                f"Became close with {a.name}",
+                pick_phrase(close_rng, "became_close_with", name=a.name),
                 related_person_id=a.id,
             ),
         )
@@ -422,12 +445,13 @@ def _record_social_life_events(
         # Sparse reunion notes for bonds that were once close.
         rel.last_reunion_day = day
         rel.cooling_noted = False  # allow a later cooling note after recovery fades
+        reun_rng = make_rng(world.seed, f"chronicle-reunite-d{day}-{a.id}-{b.id}")
         append_bond_event(
             rel,
             BondEvent(
                 day,
                 "reunited",
-                f"Reunited {_origin_phrase(context)}",
+                pick_phrase(reun_rng, reunited_key(context)),
                 context,
             ),
         )
@@ -436,7 +460,7 @@ def _record_social_life_events(
             LifeEvent(
                 LifeEventKind.REUNITED,
                 day,
-                f"Reunited with {b.name}",
+                pick_phrase(reun_rng, "reunited_with", name=b.name),
                 related_person_id=b.id,
             ),
         )
@@ -445,7 +469,7 @@ def _record_social_life_events(
             LifeEvent(
                 LifeEventKind.REUNITED,
                 day,
-                f"Reunited with {a.name}",
+                pick_phrase(reun_rng, "reunited_with", name=a.name),
                 related_person_id=a.id,
             ),
         )
@@ -585,45 +609,42 @@ def _place_phrase(place: str) -> str:
 
 
 def _mostly_place_line(rel: Relationship) -> str:
+    """Where they keep meeting — no meeting tallies."""
     place = dominant_meeting_place(rel)
-    social = social_meeting_count(rel)
-    # Prefer social meetings when describing where they keep meeting.
-    count = social if social > 0 else rel.times_met
     if place is None:
-        return f"Met {count} times"
+        return "They keep crossing paths"
     where = "via visits" if place == "visits" else f"at the {place}"
-    return f"Met {count} times · mostly {where}"
+    return f"Mostly {where}"
 
 
 def social_summary_lines(world: World, person_id: int) -> list[str]:
-    """Short prose lines for the observer inspector — life-shaped, not a CRM."""
-    from sim.systems.circumstances import relationship_history_lines
-
+    """Short prose lines for the observer inspector — chronicle, not CRM."""
     lines: list[str] = []
 
     close = close_companions(world, person_id, limit=2)
-    n_close = len(close_companions(world, person_id, limit=8))
-    n_acq = len(work_acquaintances(world, person_id, limit=8))
-    n_cool = len(stale_companions(world, person_id, limit=8))
-    if n_close or n_acq or n_cool:
-        lines.append(
-            f"Social: {n_close} close · {n_acq} acquaintances · {n_cool} cooled"
-        )
 
     if close:
         from sim.systems.observe import origin_summary_lines
 
-        parts = [f"{world.people[oid].name} ({place})" for oid, _rel, place in close]
-        lines.append("Close with: " + ", ".join(parts))
-        # Detail the strongest close companion only.
+        # Detail the strongest close companion.
         other_id, rel, place = close[0]
+        other_name = world.people[other_id].name
+        where = "via visits" if place == "visits" else f"the {place}"
+        lines.append(f"Close with {other_name} — mostly {where}")
+        if len(close) > 1:
+            extras = ", ".join(world.people[oid].name for oid, _, _ in close[1:])
+            lines.append(f"Also close with {extras}")
         lines.append(f"  {_mostly_place_line(rel)}")
         last_seen = days_since_met(world, rel)
-        last_bit = "today" if last_seen == 0 else f"{last_seen} day{'s' if last_seen != 1 else ''} ago"
-        lines.append(
-            f"  Friendship {rel.friendship} · peak {rel.peak_friendship} · last seen {last_bit}"
+        last_bit = (
+            "today"
+            if last_seen == 0
+            else ("yesterday" if last_seen == 1 else f"{last_seen} days ago")
         )
+        lines.append(f"  Last seen {last_bit}")
         for origin_line in origin_summary_lines(world, rel, person_id)[:3]:
+            if origin_line.startswith("Social meetings:"):
+                continue
             lines.append(f"  {origin_line}")
         if rel.peak_friendship > rel.friendship + 5:
             lines.append("  Used to be closer")
@@ -641,17 +662,10 @@ def social_summary_lines(world: World, person_id: int) -> list[str]:
             and rel.friendship >= CLOSE_FRIENDSHIP_MIN - 5
             and rel.peak_friendship - rel.friendship >= 8
         ):
-            # Recently met again but still well below a prior peak.
             lines.append("  Started seeing each other again")
         for note in rel.story_notes[-1:]:
-            other_name = world.people[other_id].name.split()[0]
-            lines.append(f"  {other_name}: {note[0].lower() + note[1:]}")
-        hist = relationship_history_lines(rel, world, person_id)
-        # Avoid repeating origin lines already shown above.
-        hist = [h for h in hist if not h.strip().startswith("Origin:")]
-        if hist:
-            lines.append("  History:")
-            lines.extend(hist[:4])
+            first = world.people[other_id].name.split()[0]
+            lines.append(f"  {first}: {note[0].lower() + note[1:]}")
 
     recurring = recurring_social(world, person_id, limit=1)
     if recurring:
@@ -661,14 +675,12 @@ def social_summary_lines(world: World, person_id: int) -> list[str]:
     work = work_acquaintances(world, person_id, limit=3)
     if work:
         names = ", ".join(world.people[oid].name for oid, _ in work)
-        lines.append(f"At work knows: {names}")
+        lines.append(f"Knows from work: {names}")
 
-    # Prefer a stale line when we did not already note "used to be closer" on a close friend.
     if not any(line.strip().startswith("Used to be closer") for line in lines):
         stale = stale_companions(world, person_id, limit=1)
         if stale:
             other_id, rel = stale[0]
-            # Avoid repeating someone already listed as close.
             close_ids = {oid for oid, _, _ in close}
             if other_id not in close_ids:
                 lines.append(f"Used to see: {world.people[other_id].name}")

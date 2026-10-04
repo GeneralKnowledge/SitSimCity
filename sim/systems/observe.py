@@ -110,7 +110,8 @@ def origin_summary_lines(
     lines.append(f"Origin: {context_label(origin)}")
 
     social = social_meeting_count(rel)
-    lines.append(f"Social meetings: {social}")
+    if verbose_work:
+        lines.append(f"Social meetings: {social}")
 
     other_id = rel.b_id if rel.a_id == viewer_id else rel.a_id
     coworkers = are_coworkers(world, viewer_id, other_id)
@@ -176,11 +177,23 @@ def citizen_timeline(world: World, person_id: int, limit: int = 24) -> list[Time
     has_settled = any(e.kind == LifeEventKind.SETTLED_HOME for e in person.life_events)
     has_started = any(e.kind == LifeEventKind.STARTED_JOB for e in person.life_events)
     if not has_settled:
+        from sim.systems.chronicle import pick_phrase
+        from sim.rng import make_rng
+
         home = world.buildings[person.home_id]
-        entries.append(TimelineEntry(1, f"Lives at {home.name}", "home"))
+        frng = make_rng(world.seed, f"chronicle-tl-home-p{person_id}")
+        entries.append(
+            TimelineEntry(1, pick_phrase(frng, "settled_home", place=home.name), "home")
+        )
     if not has_started:
+        from sim.systems.chronicle import pick_phrase
+        from sim.rng import make_rng
+
         work = world.buildings[person.work_id]
-        entries.append(TimelineEntry(1, f"Works at {work.name}", "work"))
+        frng = make_rng(world.seed, f"chronicle-tl-work-p{person_id}")
+        entries.append(
+            TimelineEntry(1, pick_phrase(frng, "started_job", place=work.name), "work")
+        )
 
     for event in person.life_events:
         kind = event.kind.name.lower()
@@ -194,6 +207,9 @@ def citizen_timeline(world: World, person_id: int, limit: int = 24) -> list[Time
         entries.append(TimelineEntry(event.day, text, kind))
 
     # First meetings from bond events (reunions live on bonds, not citizen log).
+    from sim.systems.chronicle import pick_phrase
+    from sim.rng import make_rng
+
     for (a, b), rel in world.relationships.items():
         if person_id not in (a, b):
             continue
@@ -201,28 +217,33 @@ def citizen_timeline(world: World, person_id: int, limit: int = 24) -> list[Time
         other = world.people[other_id]
         for be in rel.bond_events:
             if be.kind == "first_met":
+                # Prefer bond detail; prefix with the other person's name.
                 entries.append(
                     TimelineEntry(
                         be.day,
-                        f"Met {other.name} {be.detail.replace('First met ', '')}",
+                        f"Met {other.name} — {be.detail[0].lower() + be.detail[1:]}",
                         "first_met",
                     )
                 )
             elif be.kind == "became_close":
-                # Bond always records close; life_events may throttle duplicates.
+                crng = make_rng(
+                    world.seed, f"chronicle-tl-close-d{be.day}-p{person_id}-{other_id}"
+                )
                 entries.append(
                     TimelineEntry(
                         be.day,
-                        f"Became close with {other.name}",
+                        pick_phrase(crng, "became_close_with", name=other.name),
                         "became_close",
                     )
                 )
             elif be.kind == "reunited":
-                # Rare bond reunions may appear once via cap — not from life_events.
+                crng = make_rng(
+                    world.seed, f"chronicle-tl-reun-d{be.day}-p{person_id}-{other_id}"
+                )
                 entries.append(
                     TimelineEntry(
                         be.day,
-                        f"Reunited with {other.name}",
+                        pick_phrase(crng, "reunited_with", name=other.name),
                         "reunited",
                     )
                 )
@@ -243,10 +264,15 @@ def relationship_timeline(
     for be in rel.bond_events:
         entries.append(TimelineEntry(be.day, be.detail, be.kind))
 
-    # Status snapshot lines (not invented history).
+    # Status snapshot lines (not invented history) — no friendship CRM dump.
     if rel.first_met_total_minutes >= 0:
-        last_day = minutes_to_day(rel.last_met_total_minutes)
-        social = social_meeting_count(rel)
+        from sim.systems.chronicle import relative_day_phrase
+
+        gap = days_since_met(world, rel)
+        if gap >= 10_000:
+            last_bit = "never"
+        else:
+            last_bit = relative_day_phrase(world.clock.day - gap, world.clock.day)
         work_bit = ""
         if rel.meetings_work > 0 and are_coworkers(world, a_id, b_id):
             work_bit = " · often at work together"
@@ -254,16 +280,11 @@ def relationship_timeline(
             work_bit = " · some workplace overlap"
         entries.append(
             TimelineEntry(
-                last_day,
-                (
-                    f"Last seen day {last_day} · friendship {rel.friendship} "
-                    f"(peak {rel.peak_friendship}) · "
-                    f"{social} social meetings{work_bit}"
-                ),
+                world.clock.day,
+                f"Last seen {last_bit}{work_bit}",
                 "status",
             )
         )
-        gap = days_since_met(world, rel)
         if gap >= 3 and rel.peak_friendship >= CLOSE_FRIENDSHIP_MIN:
             entries.append(
                 TimelineEntry(
@@ -280,12 +301,23 @@ def relationship_timeline(
     return deduped
 
 
-def timeline_lines(entries: list[TimelineEntry], heading: str = "Timeline:") -> list[str]:
+def timeline_lines(
+    entries: list[TimelineEntry],
+    heading: str = "Timeline:",
+    *,
+    current_day: int | None = None,
+) -> list[str]:
     if not entries:
         return []
+    from sim.systems.chronicle import relative_day_phrase
+
     lines = [heading]
     for entry in entries:
-        lines.append(f"  Day {entry.day}: {entry.text}")
+        if current_day is not None and current_day - entry.day <= 14:
+            when = relative_day_phrase(entry.day, current_day)
+            lines.append(f"  {when.capitalize()}: {entry.text}")
+        else:
+            lines.append(f"  Day {entry.day}: {entry.text}")
     return lines
 
 
@@ -296,23 +328,22 @@ def relationship_detail_lines(
 
     rel = get_relationship(world, viewer_id, other_id)
     other = world.people[other_id]
-    lines = [
-        f"Bond: {other.name}",
-        f"Friendship {rel.friendship} · peak {rel.peak_friendship}",
-    ]
+    lines = [f"Bond: {other.name}"]
     last = days_since_met(world, rel)
     if last >= 10_000:
         lines.append("Last seen: never")
     elif last == 0:
         lines.append("Last seen: today")
+    elif last == 1:
+        lines.append("Last seen: yesterday")
     else:
-        lines.append(f"Last seen: {last} day{'s' if last != 1 else ''} ago")
-    # Origin block includes social meetings / work colocations (no duplicate totals).
+        lines.append(f"Last seen: {last} days ago")
     lines.extend(origin_summary_lines(world, rel, viewer_id))
     lines.extend(
         timeline_lines(
             relationship_timeline(world, viewer_id, other_id, limit=12),
             heading="Bond timeline:",
+            current_day=world.clock.day,
         )
     )
     return lines

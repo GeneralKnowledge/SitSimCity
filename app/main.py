@@ -21,7 +21,7 @@ from sim.systems.observe import (
     rank_interesting_citizens,
     world_report_lines,
 )
-from sim.types import SPEED_STEPS
+from sim.types import SPEED_STEPS, Activity
 from sim.world import World, create_world
 
 DAY_CUE_SECONDS = 2.2
@@ -142,11 +142,19 @@ def run(seed: int = 42, citizens: int = 80, width: int = 1120, height: int = 720
             # Slightly closer framing while following so the day reads as a life.
             if camera.zoom < 1.35:
                 camera.zoom = min(1.35, camera.zoom + real_dt * 0.4)
-            camera.center_on(
-                person.x * TILE + TILE / 2,
-                person.y * TILE + TILE / 2,
+            # Soft follow with a mild lead while traveling.
+            lead_x = person.x * TILE + TILE / 2
+            lead_y = person.y * TILE + TILE / 2
+            if person.activity == Activity.TRAVEL and person.path:
+                tx, ty = person.path[-1]
+                lead_x = lead_x * 0.7 + (tx * TILE + TILE / 2) * 0.3
+                lead_y = lead_y * 0.7 + (ty * TILE + TILE / 2) * 0.3
+            camera.ease_toward(
+                lead_x,
+                lead_y,
                 width,
                 height - BAR_HEIGHT,
+                alpha=min(0.22, 0.08 + real_dt * 2.5),
             )
 
         day_cue_text = None

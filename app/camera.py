@@ -36,3 +36,19 @@ class Camera:
     def center_on(self, wx: float, wy: float, screen_w: int, screen_h: int) -> None:
         self.x = wx - (screen_w / 2) / self.zoom
         self.y = wy - (screen_h / 2) / self.zoom
+
+    def ease_toward(
+        self,
+        wx: float,
+        wy: float,
+        screen_w: int,
+        screen_h: int,
+        *,
+        alpha: float = 0.12,
+    ) -> None:
+        """Soft follow — lerp camera toward a world point."""
+        target_x = wx - (screen_w / 2) / self.zoom
+        target_y = wy - (screen_h / 2) / self.zoom
+        t = max(0.0, min(1.0, alpha))
+        self.x += (target_x - self.x) * t
+        self.y += (target_y - self.y) * t
