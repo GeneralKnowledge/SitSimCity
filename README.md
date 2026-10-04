@@ -63,3 +63,5 @@ app/          # pygame camera, render, UI loop
 tests/        # headless simulation tests
 main.py       # entry point
 ```
+
+The simulation can run without the renderer. That separation is intentional for later systems.
