@@ -48,8 +48,9 @@ def test_morning_commute_moves_people_to_work() -> None:
 
 def test_evening_return_home() -> None:
     world = create_world(seed=7, citizen_count=50)
-    world.step_minutes(14 * 60)  # 06:00 -> 20:00
-    assert world.clock.hour == 20
+    # After optional evening outings end, nearly everyone should be home asleep.
+    world.step_minutes(17 * 60)  # 06:00 -> 23:00
+    assert world.clock.hour == 23
 
     home_or_heading = 0
     for person in world.people.values():

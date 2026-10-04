@@ -1,8 +1,10 @@
 # SitSimCity
 
-A tiny 2D top-down **audience simulator**: watch a seeded town of ~50 citizens commute through ordinary days.
+A tiny 2D top-down **audience simulator**: watch a seeded town of ~50 citizens live ordinary days.
 
-Milestones 1–3 only: procedural town, population, visible commuting, clock controls, click-to-inspect. No romance, crime, or other drama systems yet.
+Current scope: Milestones 1–4 — procedural town, commuting, mundane daily variations (cafe/shop/pub/visits), minimal co-location friendship, and continuous follow mode.
+
+Not included yet: romance, crime, murder, marriage, births, economy, quests.
 
 ## Setup
 
@@ -27,14 +29,23 @@ python main.py --seed 7 --citizens 50
 | Space | Pause / resume |
 | `[` `]` or `1`–`7` | Simulation speed |
 | Click citizen | Inspect |
-| `F` | Focus camera on selected citizen |
-| Middle/right drag | Pan |
+| `F` | Toggle continuous follow on selected citizen |
+| Esc | Clear selection / stop follow |
+| Middle/right drag | Pan (cancels follow) |
 | Mouse wheel | Zoom |
 | `N` | Generate next seed |
 | `R` | Regenerate current seed |
-| Esc | Clear selection |
 
 The player is an observer only. There are no orders, objectives, or win conditions.
+
+### What to watch for
+
+- Morning commute rush
+- Midday cafe/shop trips by some workers
+- After-work pub visits, shopping, or visits to another home
+- Different citizens developing different habits
+- Friendship numbers rising among people who keep meeting
+- Following one person through their day (`F`)
 
 ## Headless tests
 
@@ -42,17 +53,13 @@ The player is an observer only. There are no orders, objectives, or win conditio
 pytest -q
 ```
 
-Tests cover town shape, morning/evening commute, and seed determinism without opening a window.
-
 ## Layout
 
 ```text
 sim/          # pure simulation (no pygame)
-  generate/   # city + population
-  systems/    # schedule + movement
+  generate/   # city, population, tendencies
+  systems/    # schedule, movement, social
 app/          # pygame camera, render, UI loop
 tests/        # headless simulation tests
 main.py       # entry point
 ```
-
-The simulation can run without the renderer. That separation is intentional for later systems.
