@@ -79,9 +79,14 @@ def test_tendencies_create_different_patterns() -> None:
 
 
 def test_colocated_workers_gain_familiarity() -> None:
-    world = create_world(seed=7, citizen_count=50)
-    world.step_minutes(4 * 60)  # into mid-morning work
-    assert sum(1 for p in world.people.values() if p.activity == Activity.WORK) >= 40
+    world = create_world(seed=7, citizen_count=80)
+    world.step_minutes(4 * 60)  # into mid-morning work (day shift)
+    day_at_work = sum(
+        1
+        for p in world.people.values()
+        if p.shift == "day" and p.activity == Activity.WORK
+    )
+    assert day_at_work >= 40
     world.step_minutes(3 * 60)  # several social cooldown windows at work
     assert world.relationships
     work_rels = [rel for rel in world.relationships.values() if rel.meetings_work > 0]
@@ -112,23 +117,23 @@ def test_daily_life_is_deterministic() -> None:
 
 
 def test_evening_outings_finish_by_late_night() -> None:
-    world = create_world(seed=7, citizen_count=50)
+    world = create_world(seed=7, citizen_count=80)
     world.step_minutes(17 * 60)  # 06:00 -> 23:00
     assert world.clock.hour == 23
     counts = Counter(p.activity for p in world.people.values())
-    assert counts[Activity.SLEEP] >= 45
-    assert counts.get(Activity.AT_PUB, 0) + counts.get(Activity.VISITING, 0) <= 5
+    assert counts[Activity.SLEEP] >= 70
+    assert counts.get(Activity.AT_PUB, 0) + counts.get(Activity.VISITING, 0) <= 8
 
 
 def test_evening_habits_become_sticky() -> None:
-    world = create_world(seed=8, citizen_count=50)
+    world = create_world(seed=8, citizen_count=80)
     world.step_minutes(8 * 1440)
     habitual = [
         p
         for p in world.people.values()
         if p.habit_evening in {"pub", "visit", "home", "cafe", "shop"}
     ]
-    assert len(habitual) >= 40
+    assert len(habitual) >= 55
     # Someone who likes the pub should often lock onto that habit.
     pub_habits = [p for p in world.people.values() if p.habit_evening == "pub"]
     assert pub_habits

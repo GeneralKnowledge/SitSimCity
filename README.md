@@ -1,8 +1,8 @@
 # SitSimCity
 
-A tiny 2D top-down **audience simulator**: watch a seeded town of ~50 citizens live ordinary days.
+A tiny 2D top-down **audience simulator**: watch a seeded town of ~80 citizens live ordinary days.
 
-Current scope: Milestones 1–7.6 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, M7 observer polish, M7.5 cadence hygiene, and M7.6 live-follow comfort (compact follow card, soft work-colocation prose, random pick, day-roll cue).
+Current scope: Milestones 1–8 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, M7 observer polish, M7.5 cadence hygiene, M7.6 live-follow comfort, and M8 town pulse (denser buildings/NPCs, day/evening shifts, quieter-but-not-empty work hours).
 
 Not included yet: romance, crime, murder, marriage, births, economy, quests.
 
@@ -19,7 +19,7 @@ pip install -r requirements.txt
 ```bash
 python main.py
 python main.py --seed 7
-python main.py --seed 7 --citizens 50
+python main.py --seed 7 --citizens 80
 ```
 
 ### Controls
@@ -47,9 +47,10 @@ The player is an observer only. There are no orders, objectives, or win conditio
 
 ### What to watch for
 
-- Morning commute rush
-- Midday cafe/shop trips by some workers
-- After-work pub visits, shopping, or visits to another home
+- Morning rush (day shift) and evening rush (day leavers + evening arrivals)
+- Quieter mid-day streets that are not empty — lunch, micro-errands, evening-shift pre-work outings
+- Day vs evening shifts on the inspector (`Shift · day` / `evening`)
+- After-work pub visits, shopping, or visits to another home (day shift)
 - Different citizens developing different habits
 - Inspect: close companions (with meet counts / peak / last seen) vs work acquaintances vs cooled bonds
 - Circumstances: illness, job loss/change, overwork, moving home — and how they thin or shift meetings
@@ -68,6 +69,7 @@ pytest -q
 python scripts/playtest_m7.py --mode all
 python scripts/follow_playtest.py --protocol   # random + quiet follows
 python scripts/live_follow_analysis.py --protocol  # M7.6 compact inhabit snapshots
+python scripts/town_pulse_playtest.py              # M8 density / shifts / mid-day pulse
 python scripts/playtest_m7.py --mode metrics
 ```
 

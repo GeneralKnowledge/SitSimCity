@@ -1,0 +1,99 @@
+================================================================
+SEED 7 · 80 citizens · buildings=50
+  town: {'HOME': 32, 'WORKPLACE': 10, 'PUB': 2, 'SHOP': 2, 'CAFE': 2, 'POLICE': 1, 'HOSPITAL': 1}
+
+start · day 1 06:00
+  shifts: {'day': 58, 'evening': 22}
+  day@work=0 evening@work=0 street/amenity=0
+  activities: {'SLEEP': 80}
+
+morning rush ~08:00 · day 1 08:00
+  shifts: {'day': 58, 'evening': 22}
+  day@work=23 evening@work=0 street/amenity=26
+  activities: {'TRAVEL': 26, 'WORK': 23, 'SLEEP': 31}
+
+mid-morning ~10:30 · day 1 10:30
+  shifts: {'day': 58, 'evening': 22}
+  day@work=57 evening@work=0 street/amenity=8
+  activities: {'WORK': 57, 'AT_HOME': 15, 'TRAVEL': 6, 'AT_SHOP': 2}
+
+lunch band ~12:30 · day 1 12:30
+  shifts: {'day': 58, 'evening': 22}
+  day@work=35 evening@work=0 street/amenity=25
+  activities: {'WORK': 35, 'AT_CAFE': 6, 'TRAVEL': 15, 'AT_HOME': 20, 'AT_SHOP': 4}
+
+evening rush ~17:15 · day 1 17:15
+  shifts: {'day': 58, 'evening': 22}
+  day@work=22 evening@work=22 street/amenity=34
+  activities: {'WORK': 44, 'AT_PUB': 5, 'TRAVEL': 26, 'VISITING': 2, 'AT_SHOP': 1, 'SLEEP': 2}
+
+late night ~23:00 · day 1 23:00
+  shifts: {'day': 58, 'evening': 22}
+  day@work=0 evening@work=0 street/amenity=1
+  activities: {'SLEEP': 79, 'TRAVEL': 1}
+================================================================
+SEED 1 · 80 citizens · buildings=50
+  town: {'HOME': 32, 'WORKPLACE': 10, 'PUB': 2, 'SHOP': 2, 'CAFE': 2, 'POLICE': 1, 'HOSPITAL': 1}
+
+start · day 1 06:00
+  shifts: {'evening': 23, 'day': 57}
+  day@work=0 evening@work=0 street/amenity=0
+  activities: {'SLEEP': 80}
+
+morning rush ~08:00 · day 1 08:00
+  shifts: {'evening': 23, 'day': 57}
+  day@work=28 evening@work=0 street/amenity=17
+  activities: {'SLEEP': 35, 'TRAVEL': 17, 'WORK': 28}
+
+mid-morning ~10:30 · day 1 10:30
+  shifts: {'evening': 23, 'day': 57}
+  day@work=57 evening@work=0 street/amenity=11
+  activities: {'TRAVEL': 6, 'WORK': 57, 'AT_CAFE': 3, 'AT_HOME': 12, 'AT_SHOP': 2}
+
+lunch band ~12:30 · day 1 12:30
+  shifts: {'evening': 23, 'day': 57}
+  day@work=30 evening@work=0 street/amenity=27
+  activities: {'AT_HOME': 23, 'TRAVEL': 17, 'AT_SHOP': 3, 'AT_CAFE': 7, 'WORK': 30}
+
+evening rush ~17:15 · day 1 17:15
+  shifts: {'evening': 23, 'day': 57}
+  day@work=16 evening@work=23 street/amenity=36
+  activities: {'WORK': 39, 'TRAVEL': 25, 'SLEEP': 5, 'AT_PUB': 3, 'VISITING': 6, 'AT_CAFE': 2}
+
+late night ~23:00 · day 1 23:00
+  shifts: {'evening': 23, 'day': 57}
+  day@work=0 evening@work=0 street/amenity=0
+  activities: {'SLEEP': 80}
+================================================================
+SEED 13 · 80 citizens · buildings=50
+  town: {'HOME': 32, 'WORKPLACE': 10, 'PUB': 2, 'SHOP': 2, 'CAFE': 2, 'POLICE': 1, 'HOSPITAL': 1}
+
+start · day 1 06:00
+  shifts: {'day': 58, 'evening': 22}
+  day@work=0 evening@work=0 street/amenity=0
+  activities: {'SLEEP': 80}
+
+morning rush ~08:00 · day 1 08:00
+  shifts: {'day': 58, 'evening': 22}
+  day@work=16 evening@work=0 street/amenity=26
+  activities: {'TRAVEL': 26, 'WORK': 16, 'SLEEP': 38}
+
+mid-morning ~10:30 · day 1 10:30
+  shifts: {'day': 58, 'evening': 22}
+  day@work=57 evening@work=0 street/amenity=7
+  activities: {'WORK': 57, 'AT_HOME': 16, 'AT_CAFE': 2, 'TRAVEL': 5}
+
+lunch band ~12:30 · day 1 12:30
+  shifts: {'day': 58, 'evening': 22}
+  day@work=37 evening@work=0 street/amenity=21
+  activities: {'WORK': 37, 'AT_CAFE': 3, 'TRAVEL': 16, 'AT_HOME': 22, 'AT_SHOP': 2}
+
+evening rush ~17:15 · day 1 17:15
+  shifts: {'day': 58, 'evening': 22}
+  day@work=24 evening@work=22 street/amenity=28
+  activities: {'TRAVEL': 25, 'WORK': 46, 'SLEEP': 6, 'AT_PUB': 2, 'VISITING': 1}
+
+late night ~23:00 · day 1 23:00
+  shifts: {'day': 58, 'evening': 22}
+  day@work=0 evening@work=0 street/amenity=0
+  activities: {'SLEEP': 80}

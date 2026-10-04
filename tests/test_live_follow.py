@@ -67,6 +67,7 @@ def test_compact_follow_hides_traits_and_raw_work_counts() -> None:
     joined = "\n".join(lines)
     assert "FOLLOWING" in joined
     assert "Now:" in joined
+    assert "Shift ·" in joined
     assert "Traits" not in joined
     assert "Work colocations:" not in joined
     assert "Sit with them" in joined

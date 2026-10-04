@@ -25,18 +25,40 @@ def build_daily_schedule(
     person: Person,
     rng: random.Random,
 ) -> list[ScheduleEntry]:
-    """Commute baseline plus a few tendency-weighted optional trips."""
-    # Circumstances reshape opportunity (stay home / skip outings / no job).
+    """Commute baseline plus tendency-weighted optional trips (shift-aware)."""
     if has_circumstance(person, CircumstanceKind.SICK):
         return _sick_day_schedule(person)
 
     if has_circumstance(person, CircumstanceKind.UNEMPLOYED):
         return _unemployed_day_schedule(world, person, rng)
 
+    if person.shift == "evening":
+        return _evening_shift_schedule(world, person, rng)
+    return _day_shift_schedule(world, person, rng)
+
+
+def _day_windows(person: Person) -> tuple[int, int]:
+    """Day shift: leave ~7:15–8:15, leave work ~16:45–17:40."""
+    leave_home = 7 * 60 + 15 + min(person.wake_offset_minutes, 60)
+    leave_work = 16 * 60 + 45 + (person.wake_offset_minutes % 55)
+    return leave_home, leave_work
+
+
+def _evening_windows(person: Person) -> tuple[int, int]:
+    """Evening shift: leave ~13:30–14:30, leave work ~21:30–22:15."""
+    leave_home = 13 * 60 + 30 + min(person.wake_offset_minutes, 60)
+    leave_work = 21 * 60 + 30 + (person.wake_offset_minutes % 45)
+    return leave_home, leave_work
+
+
+def _day_shift_schedule(
+    world: World,
+    person: Person,
+    rng: random.Random,
+) -> list[ScheduleEntry]:
     t = person.tendencies
     overworked = has_circumstance(person, CircumstanceKind.OVERWORKED)
-    leave_home = 7 * 60 + 20 + person.wake_offset_minutes
-    leave_work = 17 * 60 + (person.wake_offset_minutes % 25)
+    leave_home, leave_work = _day_windows(person)
     if overworked:
         leave_home -= 20
         leave_work += 45
@@ -46,6 +68,7 @@ def build_daily_schedule(
         ScheduleEntry(leave_home, Activity.WORK, person.work_id),
     ]
 
+    lunch_scheduled = False
     if not overworked and _roll_lunch(person, rng):
         lunch_start = 12 * 60 + rng.randint(0, 25)
         place_id, place_activity, place_name = _pick_errand_place(
@@ -57,6 +80,28 @@ def build_daily_schedule(
             entries.append(ScheduleEntry(lunch_start, place_activity, place_id))
             entries.append(ScheduleEntry(back, Activity.WORK, person.work_id))
             notes.append(f"Lunch at {place_name}")
+            lunch_scheduled = True
+
+    # Sparse mid-day pulse: short cafe/shop hop for a minority of day workers.
+    if not overworked and _roll_micro_errand(person, rng):
+        if lunch_scheduled or rng.random() < 0.55:
+            # Mid-afternoon window (after lunch band).
+            errand_start = 14 * 60 + 30 + rng.randint(0, 40)
+        else:
+            # Mid-morning window.
+            errand_start = 10 * 60 + rng.randint(0, 45)
+        place_id, place_activity, place_name = _pick_errand_place(
+            world, rng, prefer_cafe=t.cafe_affinity >= t.shop_affinity
+        )
+        duration = 15 + rng.randint(0, 15)
+        back = min(errand_start + duration, leave_work - 15)
+        # Avoid colliding with an existing lunch block.
+        if back > errand_start + 12 and not _overlaps_block(
+            entries, errand_start, back, person.work_id
+        ):
+            entries.append(ScheduleEntry(errand_start, place_activity, place_id))
+            entries.append(ScheduleEntry(back, Activity.WORK, person.work_id))
+            notes.append(f"Errand at {place_name}")
 
     if overworked:
         entries.append(ScheduleEntry(leave_work, Activity.SLEEP, person.home_id))
@@ -86,6 +131,98 @@ def build_daily_schedule(
     return entries
 
 
+def _evening_shift_schedule(
+    world: World,
+    person: Person,
+    rng: random.Random,
+) -> list[ScheduleEntry]:
+    t = person.tendencies
+    overworked = has_circumstance(person, CircumstanceKind.OVERWORKED)
+    leave_home, leave_work = _evening_windows(person)
+    if overworked:
+        leave_home -= 20
+        leave_work = min(leave_work + 45, 23 * 60)
+    notes: list[str] = ["Evening shift"]
+    wake = 8 * 60 + min(person.wake_offset_minutes, 45)
+    entries: list[ScheduleEntry] = [
+        ScheduleEntry(0, Activity.SLEEP, person.home_id),
+        ScheduleEntry(wake, Activity.AT_HOME, person.home_id),
+        ScheduleEntry(leave_home, Activity.WORK, person.work_id),
+    ]
+
+    # Pre-work outing during classic “work hours” — keeps mid-day streets alive.
+    if not overworked and rng.random() < 0.65:
+        place_id, place_activity, place_name = _pick_errand_place(
+            world, rng, prefer_cafe=t.cafe_affinity >= t.shop_affinity
+        )
+        start = 9 * 60 + 30 + rng.randint(0, 100)
+        end = min(start + 35 + rng.randint(0, 25), leave_home - 20)
+        if end > start + 15:
+            entries.append(ScheduleEntry(start, place_activity, place_id))
+            entries.append(ScheduleEntry(end, Activity.AT_HOME, person.home_id))
+            notes.append(f"Out at {place_name}")
+
+    if overworked:
+        entries.append(ScheduleEntry(leave_work, Activity.SLEEP, person.home_id))
+        notes.append("Long evening — straight home")
+        _nudge_habit(person, "home")
+    else:
+        # After late shift: short stop or home — no long pub nights.
+        post = _decide_post_evening_shift(world, person, rng)
+        if post is None:
+            entries.append(ScheduleEntry(leave_work, Activity.SLEEP, person.home_id))
+            notes.append("Straight home after work")
+            _nudge_habit(person, "home")
+        else:
+            activity, target_id, duration, label, habit_key = post
+            end = min(leave_work + duration, 23 * 60)
+            entries.append(ScheduleEntry(leave_work, activity, target_id))
+            entries.append(ScheduleEntry(end, Activity.SLEEP, person.home_id))
+            notes.append(label)
+            _nudge_habit(person, habit_key)
+
+    if has_circumstance(person, CircumstanceKind.RECENTLY_MOVED):
+        notes.insert(0, "Settling into new neighbourhood")
+
+    person.plan_notes = notes
+    entries.sort(key=lambda e: e.minute_of_day)
+    return entries
+
+
+def _decide_post_evening_shift(
+    world: World,
+    person: Person,
+    rng: random.Random,
+) -> tuple[Activity, int, int, str, str] | None:
+    """Short amenity stop after evening shift — prefer home."""
+    t = person.tendencies
+    if rng.random() < 0.55 + t.homebody * 0.003:
+        return None
+    place_id, place_activity, place_name = _pick_errand_place(
+        world, rng, prefer_cafe=t.cafe_affinity >= t.shop_affinity
+    )
+    duration = 20 + rng.randint(0, 25)
+    kind = "cafe" if place_activity == Activity.AT_CAFE else "shop"
+    return place_activity, place_id, duration, f"Quick stop: {place_name}", kind
+
+
+def _overlaps_block(
+    entries: list[ScheduleEntry],
+    start: int,
+    end: int,
+    work_id: int,
+) -> bool:
+    """True if [start, end) collides with a non-work scheduled block."""
+    for entry in entries:
+        if entry.target_building_id == work_id and entry.activity == Activity.WORK:
+            continue
+        if entry.activity in (Activity.SLEEP, Activity.AT_HOME):
+            continue
+        if start <= entry.minute_of_day < end:
+            return True
+    return False
+
+
 def _sick_day_schedule(person: Person) -> list[ScheduleEntry]:
     person.plan_notes = ["Home sick"]
     return [
@@ -106,8 +243,8 @@ def _unemployed_day_schedule(
         ScheduleEntry(0, Activity.SLEEP, person.home_id),
         ScheduleEntry(8 * 60 + person.wake_offset_minutes, Activity.AT_HOME, person.home_id),
     ]
-    # Light daytime errand sometimes — keeps a thin social thread without work.
-    if rng.random() < 0.35:
+    # Thin daytime presence — slightly more often than before to fill streets.
+    if rng.random() < 0.45:
         place_id, place_activity, place_name = _pick_errand_place(
             world,
             rng,
@@ -147,7 +284,17 @@ def _roll_lunch(person: Person, rng: random.Random) -> bool:
         + (100 - t.homebody) * 0.0015
     )
     chance = _clamp01(chance)
-    chance = max(0.04, min(0.70, chance))
+    # Slightly higher floor so mid-day amenities see more traffic.
+    chance = max(0.10, min(0.70, chance))
+    return rng.random() < chance
+
+
+def _roll_micro_errand(person: Person, rng: random.Random) -> bool:
+    """~10–15% of day workers take a short mid-day amenity hop."""
+    t = person.tendencies
+    interest = max(t.cafe_affinity, t.shop_affinity)
+    chance = 0.08 + interest * 0.0008 + (100 - t.homebody) * 0.0004
+    chance = max(0.10, min(0.18, chance))
     return rng.random() < chance
 
 

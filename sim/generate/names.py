@@ -104,11 +104,32 @@ WORKPLACE_NAMES = (
     "Town Ledger",
     "Brick & Board",
     "Northwind Workshop",
+    "Riverfront Depot",
+    "Chapel Street Press",
+    "Pine Court Studio",
+    "Oak Street Works",
+    "Mill Road Dispatch",
+    "Harbor Street Yard",
 )
 
-PUB_NAMES = ("The Crown & Anchor", "The Quiet Pint", "Evening Bell")
-SHOP_NAMES = ("Corner Goods", "Market Row", "Daily Provisions")
-CAFE_NAMES = ("Westside Cafe", "Steam & Crumb", "Morning Cup")
+PUB_NAMES = (
+    "The Crown & Anchor",
+    "The Quiet Pint",
+    "Evening Bell",
+    "The Lantern Room",
+)
+SHOP_NAMES = (
+    "Corner Goods",
+    "Market Row",
+    "Daily Provisions",
+    "Harbor Mercantile",
+)
+CAFE_NAMES = (
+    "Westside Cafe",
+    "Steam & Crumb",
+    "Morning Cup",
+    "Mill Road Roast",
+)
 
 OCCUPATIONS = (
     "Clerk",

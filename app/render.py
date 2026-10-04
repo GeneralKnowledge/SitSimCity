@@ -250,6 +250,7 @@ def _person_inspector_lines(
     lines = [
         person.name + ("  ·  FOLLOWING" if following else ""),
         f"Age {person.age}  ·  {person.occupation}",
+        f"Shift · {person.shift}",
         f"Home: {home.name}",
         f"Work: {work.name}",
         f"Activity: {person.activity.name.replace('_', ' ').title()}",
@@ -286,6 +287,7 @@ def _compact_follow_lines(world: World, person: Person) -> list[str]:
     lines = [
         f"{person.name}  ·  FOLLOWING",
         f"{person.occupation} · age {person.age}",
+        f"Shift · {person.shift}",
         f"Now: {activity}",
         f"Home · {home.name}",
         f"Work · {work.name}",

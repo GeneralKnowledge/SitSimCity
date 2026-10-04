@@ -30,13 +30,13 @@ DAY_CUE_SECONDS = 2.2
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="SitSimCity — tiny autonomous town prototype")
     parser.add_argument("--seed", type=int, default=42, help="Town generation seed")
-    parser.add_argument("--citizens", type=int, default=50, help="Citizen count")
+    parser.add_argument("--citizens", type=int, default=80, help="Citizen count")
     parser.add_argument("--width", type=int, default=1120, help="Window width")
     parser.add_argument("--height", type=int, default=720, help="Window height")
     return parser.parse_args(argv)
 
 
-def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720) -> None:
+def run(seed: int = 42, citizens: int = 80, width: int = 1120, height: int = 720) -> None:
     pygame.init()
     pygame.display.set_caption("SitSimCity — observer prototype")
     screen = pygame.display.set_mode((width, height))
