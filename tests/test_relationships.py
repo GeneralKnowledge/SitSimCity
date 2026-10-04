@@ -67,7 +67,8 @@ def test_amenity_meetings_accumulate_place_counts() -> None:
     assert rel.times_met >= 4
     assert rel.meetings_pub >= 4
     assert rel.meetings_work == 0
-    assert rel.friendship >= 12
+    # Diminishing returns: early meetings still establish a real bond.
+    assert rel.friendship >= 8
     assert rel.familiarity >= 8
 
 
@@ -165,12 +166,12 @@ def test_staleness_decays_friendship_keeps_totals_and_peak() -> None:
     world = create_world(seed=13, citizen_count=30)
     a_id, b_id = _two_people(world)
     pubs = [b for b in world.buildings.values() if b.kind == BuildingKind.PUB]
-    _meet_n_times(world, a_id, b_id, Activity.AT_PUB, 6, float(pubs[0].x), float(pubs[0].y))
+    _meet_n_times(world, a_id, b_id, Activity.AT_PUB, 10, float(pubs[0].x), float(pubs[0].y))
     rel = get_relationship(world, a_id, b_id)
     peak = rel.peak_friendship
     times = rel.times_met
     pubs_met = rel.meetings_pub
-    assert peak >= 18
+    assert peak >= 20
     assert rel.friendship == peak
 
     # Pretend they last met long ago, then roll several days.
@@ -189,17 +190,21 @@ def test_renewed_meeting_reactivates_stale_friendship() -> None:
     world = create_world(seed=14, citizen_count=30)
     a_id, b_id = _two_people(world)
     pubs = [b for b in world.buildings.values() if b.kind == BuildingKind.PUB]
-    _meet_n_times(world, a_id, b_id, Activity.AT_PUB, 5, float(pubs[0].x), float(pubs[0].y))
+    _meet_n_times(world, a_id, b_id, Activity.AT_PUB, 12, float(pubs[0].x), float(pubs[0].y))
     rel = get_relationship(world, a_id, b_id)
+    peak = rel.peak_friendship
+    # Force a cooled state: peak remembered, current much lower, days apart.
+    rel.friendship = max(1, peak // 3)
     rel.last_met_total_minutes = world.total_minutes() - 5 * MINUTES_PER_DAY
-    for _ in range(5):
-        world.clock.day += 1
-        apply_relationship_staleness(world)
     stale_level = rel.friendship
-    assert stale_level < rel.peak_friendship
+    assert stale_level <= peak * 0.6
 
     _meet_n_times(world, a_id, b_id, Activity.AT_PUB, 1, float(pubs[0].x), float(pubs[0].y))
     assert rel.friendship > stale_level
+    # Amenity reunion crawls — does not snap back to peak.
+    assert rel.friendship <= stale_level + 2
+    assert rel.friendship < peak
+    assert rel.peak_friendship == peak
 
 
 def test_many_work_acquaintances_few_close_friends() -> None:
