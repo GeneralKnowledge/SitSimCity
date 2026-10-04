@@ -155,3 +155,28 @@ def person_name(rng: random.Random, used: set[str]) -> str:
     name = f"Citizen {len(used) + 1}"
     used.add(name)
     return name
+
+
+def person_name_with_surname(
+    rng: random.Random, used: set[str], surname: str
+) -> str:
+    """Adult replacement sharing a parent's surname (story flavor)."""
+    surname = surname.strip() or rng.choice(LAST_NAMES)
+    for _ in range(200):
+        name = f"{rng.choice(FIRST_NAMES)} {surname}"
+        if name not in used:
+            used.add(name)
+            return name
+    return person_name(rng, used)
+
+
+_TITLE_PREFIXES = ("Senior ", "Lead ", "Head ", "Chief ")
+
+
+def bump_occupation_title(occupation: str, rng: random.Random) -> str:
+    """Meaningless title promotion — inspect/chronicle only."""
+    base = occupation.strip() or "Clerk"
+    for prefix in _TITLE_PREFIXES:
+        if base.startswith(prefix):
+            return base
+    return f"{rng.choice(_TITLE_PREFIXES)}{base}".strip()

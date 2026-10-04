@@ -1,0 +1,74 @@
+SitSimCity M10 lifecycle · seed 7 · day 91
+Population start/end: 80 / 80
+Deaths: 11  Arrivals: 11  Keeping company: 3
+
+--- Town chronicle ---
+  Day 2: [DIED] Clara Wright: Passed quietly; the house kept their hours for a while
+  Day 2: [ARRIVED] Jack Cook: Arrived and found a rhythm quickly enough
+  Day 9: [DIED] Zane Hall: Did not wake for the day's errands
+  Day 9: [ARRIVED] Nina Harris: New in town; took a post and a set of keys
+  Day 22: [DIED] Quinn Baker: Did not wake for the day's errands
+  Day 22: [ARRIVED] Carol Hill: Arrived and found a rhythm quickly enough
+  Day 36: [DIED] Eve Hill: Passed quietly; the house kept their hours for a while
+  Day 36: [ARRIVED] Ben Reed: New in town; took a post and a set of keys
+  Day 48: [DIED] Yvonne Hill: Passed quietly; the house kept their hours for a while
+  Day 48: [ARRIVED] Wendy Parker: Came home to town — grown child of Lara and Vera
+  Day 57: [DIED] Gina Wright: The town lost Gina
+  Day 57: [ARRIVED] Nina Young: A next chapter for Lara and Vera: Nina settled in
+  Day 66: [DIED] Jack Nelson: The town lost Jack
+  Day 66: [ARRIVED] Felix Cook: New in town; took a post and a set of keys
+  Day 67: [DIED] Uma Clark: Did not wake for the day's errands
+  Day 67: [ARRIVED] Kate Baker: New in town; took a post and a set of keys
+  Day 76: [DIED] Vince Allen: The town lost Vince
+  Day 76: [ARRIVED] Frank Parker: Came home to town — grown child of Lara and Vera
+  Day 77: [DIED] Ben Reed: The town lost Ben
+  Day 77: [ARRIVED] Dan Nelson: Moved back as an adult; Tess and Piper made room in the story
+  Day 84: [DIED] Tina Morgan: The town lost Tina
+  Day 84: [ARRIVED] Gina Taylor: Moved back as an adult; Quinn and Dan made room in the story
+
+--- Grown-child arrivals ---
+  Wendy Parker (age 28) · child of Lara Young & Vera Parker
+  Nina Young (age 25) · child of Lara Young & Vera Parker
+  Frank Parker (age 27) · child of Lara Young & Vera Parker
+  Dan Nelson (age 24) · child of Tess Nelson & Piper Rivera
+  Gina Taylor (age 26) · child of Quinn Taylor & Dan Parker
+
+--- Friend-passed / title samples ---
+  Kate Young: The days feel thinner without Tina
+  Clara Hall: The door now says Senior Clerk
+  Mary Morgan: Somehow became Lead Bookkeeper — same desk, fancier word
+  Quinn Taylor: Saw Gina take rooms of their own
+  Vince Clark: Misses Tina — the usual chair stayed empty
+  Lara Young: Saw Wendy take rooms of their own
+  Lara Young: Their grown child Nina settled in town
+  Lara Young: Proud, quietly — Frank is back in the daily pattern
+  Will Scott: Picked up the title Chief Assembler when the office reshuffled
+  Tess Nelson: Proud, quietly — Dan is back in the daily pattern
+  Piper Rivera: Proud, quietly — Dan is back in the daily pattern
+  Vera Parker: Proud, quietly — Wendy is back in the daily pattern
+  Vera Parker: Saw Nina take rooms of their own
+  Vera Parker: Saw Frank take rooms of their own
+
+--- W report (tail) ---
+WORLD — DAY 91
+Population: 80
+Town chronicle: 11 deaths · 11 arrivals
+Keeping company: 3 pairs
+Relationships
+  Close: 5
+  Acquaintance: 664
+  Ever-close: 12
+  Reunions: 1
+  Mean/max degree: 0.12 / 2
+  Zero-close: 73  ≥20:5  ≥50:0  =100:0
+Circumstances (active)
+  UNEMPLOYED: 3
+Most eventful citizens
+  Quinn Taylor — 13 events (1 job, 1 move, 2 close, 2 cooled)
+  Zoe Williams — 11 events (1 move, 4 ill)
+  Rosa Wright — 10 events (1 job, 3 ill)
+  Mary Morgan — 11 events (2 move, 1 ill)
+  Miles Miller — 11 events (1 job, 2 ill, 1 cooled)
+Most interesting relationships
+
+Verdict: PASS — pop stable, deaths matched by arrivals

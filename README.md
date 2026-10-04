@@ -2,9 +2,9 @@
 
 A tiny 2D top-down **audience simulator**: watch a seeded town of ~80 citizens live ordinary days.
 
-Current scope: Milestones 1–9 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, M7 observer polish, M7.5 cadence hygiene, M7.6 live-follow comfort, M8 town pulse (denser buildings/NPCs, day/evening shifts), and M9 chronicle polish (DF-flavored life/bond prose, demoted CRM metrics, soft inhabit UI).
+Current scope: Milestones 1–10 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, M7–M7.6 observer/inhabit polish, M8 town pulse, M9 chronicle voice, and M10 lite death/continuity (replacements, soft friend notes, surface “keeping company” pairs that can flavor adult grown-child arrivals).
 
-Not included yet: romance, crime, murder, marriage, births, economy, quests.
+Not included yet: crime, murder, marriage systems, juvenile children, economy, quests.
 
 ## Setup
 
@@ -56,6 +56,7 @@ The player is an observer only. There are no orders, objectives, or win conditio
 - Circumstances: illness, job loss/change, overwork, moving home — written as small-town notes
 - Life / bond timelines with relative days for recent events; accurate origin (work vs amenity)
 - Following one person (`F` / `O`): soft camera, name tag, inhabit status bar; `T` expands timeline under the compact card
+- Occasional deaths and adult replacements; friends miss them; sometimes a close pair’s grown child settles in; coworker titles may shuffle meaninglessly
 
 ## Headless tests
 
@@ -71,6 +72,7 @@ python scripts/follow_playtest.py --protocol   # random + quiet follows
 python scripts/live_follow_analysis.py --protocol  # M7.6 compact inhabit snapshots
 python scripts/town_pulse_playtest.py              # M8 density / shifts / mid-day pulse
 python scripts/chronicle_playtest.py --seed 7      # M9 chronicle voice / CRM demotion
+python scripts/lifecycle_playtest.py --seed 7      # M10 death / replacements / couples
 python scripts/playtest_m7.py --mode metrics
 ```
 
@@ -79,7 +81,7 @@ python scripts/playtest_m7.py --mode metrics
 ```text
 sim/          # pure simulation (no pygame)
   generate/   # city, population, tendencies
-  systems/    # schedule, movement, social, circumstances, observe, chronicle
+  systems/    # schedule, movement, social, circumstances, observe, chronicle, lifecycle
 app/          # pygame camera, render, UI loop
 scripts/      # playtest / validation helpers
 tests/        # headless simulation tests

@@ -126,6 +126,12 @@ class LifeEventKind(Enum):
     # Day-1 placement (M7.5); durable baseline for timelines.
     SETTLED_HOME = auto()
     STARTED_JOB = auto()
+    # M10 lifecycle (story beats — not a full vital-statistics sim).
+    DIED = auto()
+    FRIEND_PASSED = auto()
+    ARRIVED = auto()
+    CHILD_SETTLED = auto()
+    TITLE_CHANGED = auto()
 
 
 @dataclass(frozen=True)
@@ -176,6 +182,8 @@ class Person:
     # M6: temporary circumstances + typed life-change log.
     circumstances: list[Circumstance] = field(default_factory=list)
     life_events: list[LifeEvent] = field(default_factory=list)
+    # M10 story-only parentage (adult replacements framed as grown children).
+    parent_ids: tuple[int, int] | None = None
 
 
 # Walkable speed in tiles per simulated minute.
@@ -253,9 +261,21 @@ OVERWORKED_MAX_DAYS = 4
 MOVE_DAILY_CHANCE = 0.0025
 RECENTLY_MOVED_DAYS = 5
 
+# --- M10 lifecycle (story exits / refills; freeze friendship & circumstance rates) ---
+# Per-person daily chances, age-weighted. Town caps at one death per day.
+DEATH_CHANCE_YOUNG = 0.00015  # under 45
+DEATH_CHANCE_MID = 0.0008  # 45–54
+DEATH_CHANCE_OLDER = 0.0025  # 55+
+# Chance a replacement is framed as grown child of a close pair (if any exist).
+CHILD_REPLACEMENT_CHANCE = 0.65
+# Soft "keeping company" note on mutual close pairs (romance flavor only).
+COUPLE_NOTE_DAILY_CHANCE = 0.02
+TITLE_BUMP_CHANCE = 0.55
+
 LIFE_EVENT_HISTORY_LIMIT = 24
 CIRCUMSTANCE_NOTE_LIMIT = 4
 BOND_EVENT_LIMIT = 16
+TOWN_CHRONICLE_LIMIT = 40
 
 # M7.5 cadence hygiene (logging/presentation only — not friendship math).
 # BECAME_CLOSE life-events: at most one per person inside this window.

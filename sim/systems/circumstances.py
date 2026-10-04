@@ -58,6 +58,11 @@ _DURABLE_LIFE_KINDS = frozenset(
         LifeEventKind.OVERWORK_ENDED,
         LifeEventKind.SETTLED_HOME,
         LifeEventKind.STARTED_JOB,
+        LifeEventKind.DIED,
+        LifeEventKind.FRIEND_PASSED,
+        LifeEventKind.ARRIVED,
+        LifeEventKind.CHILD_SETTLED,
+        LifeEventKind.TITLE_CHANGED,
     }
 )
 

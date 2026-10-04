@@ -7,6 +7,7 @@ from sim.generate.city import CityLayout, generate_city
 from sim.generate.population import populate_city
 from sim.rng import make_rng
 from sim.systems.circumstances import tick_circumstances
+from sim.systems.lifecycle import tick_lifecycle
 from sim.systems.movement import advance_movement, begin_travel
 from sim.systems.schedule import active_goal, assign_schedules
 from sim.systems.social import (
@@ -37,6 +38,9 @@ class World:
     people: dict[int, Person]
     clock: Clock = field(default_factory=Clock)
     relationships: dict[tuple[int, int], Relationship] = field(default_factory=dict)
+    # M10: town-level chronicle (deaths / arrivals) + stable id allocator.
+    town_chronicle: list[LifeEvent] = field(default_factory=list)
+    next_person_id: int = 1
     # Remember last pursued building so we do not repath every minute.
     _travel_targets: dict[int, int] = field(default_factory=dict)
 
@@ -73,10 +77,14 @@ class World:
         if rolled:
             apply_relationship_staleness(self)
             tick_circumstances(self)
+            tick_lifecycle(self)
             assign_schedules(self)
             self._travel_targets.clear()
         for person_id in sorted(self.people):
-            self._step_person(self.people[person_id])
+            person = self.people.get(person_id)
+            if person is None:
+                continue
+            self._step_person(person)
         process_colocations(self)
 
     def _step_person(self, person: Person) -> None:
@@ -117,6 +125,7 @@ def create_world(seed: int = 42, citizen_count: int = 80) -> World:
     people_rng = make_rng(seed, "people")
     layout: CityLayout = generate_city(city_rng)
     people = populate_city(people_rng, layout, citizen_count=citizen_count)
+    next_id = max(people) + 1 if people else 1
     world = World(
         seed=seed,
         width=layout.width,
@@ -124,6 +133,7 @@ def create_world(seed: int = 42, citizen_count: int = 80) -> World:
         tiles=layout.tiles,
         buildings=layout.buildings,
         people=people,
+        next_person_id=next_id,
     )
     for person in world.people.values():
         home = world.buildings[person.home_id]

@@ -174,6 +174,46 @@ PHRASES: dict[str, tuple[str, ...]] = {
         "Settling into the new neighbourhood",
         "Still learning the new streets",
     ),
+    # M10 lifecycle / soft romance story beats
+    "died": (
+        "Passed quietly; the house kept their hours for a while",
+        "The town lost {name}",
+        "Did not wake for the day's errands",
+    ),
+    "friend_passed": (
+        "Misses {name} — the usual chair stayed empty",
+        "Still half-expects {name} around the corner",
+        "The days feel thinner without {name}",
+    ),
+    "arrived": (
+        "New in town; took a post and a set of keys",
+        "Arrived and found a rhythm quickly enough",
+        "Settled in as if the streets already knew them",
+    ),
+    "arrived_child": (
+        "Came home to town — grown child of {parent_a} and {parent_b}",
+        "Moved back as an adult; {parent_a} and {parent_b} made room in the story",
+        "A next chapter for {parent_a} and {parent_b}: {name} settled in",
+    ),
+    "child_settled": (
+        "Their grown child {name} settled in town",
+        "Saw {name} take rooms of their own",
+        "Proud, quietly — {name} is back in the daily pattern",
+    ),
+    "title_changed": (
+        "Somehow became {title} — same desk, fancier word",
+        "The door now says {title}",
+        "Picked up the title {title} when the office reshuffled",
+    ),
+    "keeping_company": (
+        "Keeping company these days",
+        "Often spoken of as a pair",
+        "Their evenings have a habit of overlapping",
+    ),
+    "contact_friend_passed": (
+        "Quieter since {name} passed",
+        "An empty stool where {name} used to be",
+    ),
 }
 
 
