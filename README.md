@@ -2,7 +2,7 @@
 
 A tiny 2D top-down **audience simulator**: watch a seeded town of ~50 citizens live ordinary days.
 
-Current scope: Milestones 1–6 — procedural town, commuting, mundane daily life, persistent relationship memory (M5.5 diminishing friendship), and circumstances/life changes that reshape opportunity (illness, unemployment→new job, overwork, moving home) so social stories emerge without authored drama.
+Current scope: Milestones 1–7 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, and M7 observer polish (timelines, bond origin, day-step, interesting-citizen ranking, world report).
 
 Not included yet: romance, crime, murder, marriage, births, economy, quests.
 
@@ -35,6 +35,12 @@ python main.py --seed 7 --citizens 50
 | Mouse wheel | Zoom |
 | `N` | Generate next seed |
 | `R` | Regenerate current seed |
+| `D` | Advance 1 day (pauses) |
+| `Y` | Advance 5 days (pauses) |
+| `T` | Toggle life timeline in inspector |
+| `J` | Cycle focused bond (close / cooled) |
+| `I` | Jump to next interesting citizen + follow |
+| `W` | Toggle world diagnostic report |
 
 The player is an observer only. There are no orders, objectives, or win conditions.
 
@@ -46,7 +52,8 @@ The player is an observer only. There are no orders, objectives, or win conditio
 - Different citizens developing different habits
 - Inspect: close companions (with meet counts / peak / last seen) vs work acquaintances vs cooled bonds
 - Circumstances: illness, job loss/change, overwork, moving home — and how they thin or shift meetings
-- Following one person through their day (`F`)
+- Life / bond timelines and accurate relationship origin (work vs amenity)
+- Following one person through their day (`F`); day-step with `D` / `Y`
 
 ## Headless tests
 
@@ -54,13 +61,22 @@ The player is an observer only. There are no orders, objectives, or win conditio
 pytest -q
 ```
 
+## Playtest / observer diagnostics
+
+```bash
+python scripts/playtest_m7.py --mode all
+python scripts/playtest_m7.py --mode a          # seed 7 · 100 days
+python scripts/playtest_m7.py --mode metrics
+```
+
 ## Layout
 
 ```text
 sim/          # pure simulation (no pygame)
   generate/   # city, population, tendencies
-  systems/    # schedule, movement, social, circumstances
+  systems/    # schedule, movement, social, circumstances, observe
 app/          # pygame camera, render, UI loop
+scripts/      # playtest / validation helpers
 tests/        # headless simulation tests
 main.py       # entry point
 ```

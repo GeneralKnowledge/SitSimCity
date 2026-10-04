@@ -63,7 +63,8 @@ def _append_history_line(person: Person, line: str) -> None:
 
 
 def add_relationship_note(world: World, a_id: int, b_id: int, note: str) -> None:
-    from sim.systems.social import get_relationship
+    from sim.systems.social import append_bond_event, get_relationship
+    from sim.types import BondEvent
 
     rel = get_relationship(world, a_id, b_id)
     if note in rel.story_notes:
@@ -71,6 +72,8 @@ def add_relationship_note(world: World, a_id: int, b_id: int, note: str) -> None
     rel.story_notes.append(note)
     if len(rel.story_notes) > CIRCUMSTANCE_NOTE_LIMIT:
         rel.story_notes = rel.story_notes[-CIRCUMSTANCE_NOTE_LIMIT:]
+    day = world.clock.day
+    append_bond_event(rel, BondEvent(day, "note", note, None))
 
 
 def tick_circumstances(world: World) -> None:
@@ -357,19 +360,17 @@ def recent_life_event_lines(person: Person, limit: int = 4) -> list[str]:
 
 def relationship_history_lines(rel, world: World, viewer_id: int) -> list[str]:
     """Compact deterministic bond history for the inspector."""
+    from sim.systems.observe import origin_summary_lines
+
     lines: list[str] = []
-    social = (
-        rel.meetings_pub + rel.meetings_cafe + rel.meetings_shop + rel.meetings_visit
-    )
-    # Prefer social origin when the bond actually has amenity/visit meetings.
-    if social > 0 and rel.meetings_work > social * 2:
-        lines.append("  Met through work")
-    elif social > 0:
-        lines.append("  Met socially in town")
-    elif rel.meetings_work > 0:
-        lines.append("  Met through work")
+    lines.extend(f"  {line}" for line in origin_summary_lines(world, rel, viewer_id))
     if rel.ever_close or rel.peak_friendship >= 20:
-        lines.append("  Became close")
+        where = ""
+        if rel.close_context:
+            from sim.systems.social import _origin_phrase
+
+            where = f" {_origin_phrase(rel.close_context)}"
+        lines.append(f"  Became close{where}")
     for note in rel.story_notes[-2:]:
         lines.append(f"  {note}")
     if (
@@ -377,8 +378,7 @@ def relationship_history_lines(rel, world: World, viewer_id: int) -> list[str]:
         and rel.friendship < rel.peak_friendship * 0.6
         and rel.friendship > 0
     ):
-        lines.append("  Friendship cooled with fewer meetings")
-    # Recent reunion cue from life events of either person.
+        lines.append("  Friendship cooled after fewer meetings")
     other_id = rel.b_id if rel.a_id == viewer_id else rel.a_id
     for pid in (viewer_id, other_id):
         person = world.people[pid]

@@ -5,7 +5,12 @@ import pygame
 from app import colors
 from app.camera import Camera
 from sim.systems.circumstances import circumstance_summary_lines, recent_life_event_lines
-from sim.systems.social import social_summary_lines
+from sim.systems.observe import (
+    citizen_timeline,
+    relationship_detail_lines,
+    timeline_lines,
+)
+from sim.systems.social import close_companions, social_summary_lines, stale_companions
 from sim.types import BuildingKind, Person, TileKind
 from sim.world import World
 
@@ -22,6 +27,11 @@ def draw_world(
     following: bool,
     font: pygame.font.Font,
     small_font: pygame.font.Font,
+    *,
+    show_timeline: bool = False,
+    focus_other_id: int | None = None,
+    show_world_report: bool = False,
+    world_report_lines: list[str] | None = None,
 ) -> None:
     surface.fill(colors.BG)
     map_rect = pygame.Rect(0, 0, surface.get_width(), surface.get_height() - BAR_HEIGHT)
@@ -38,6 +48,10 @@ def draw_world(
         following,
         font,
         small_font,
+        show_timeline=show_timeline,
+        focus_other_id=focus_other_id,
+        show_world_report=show_world_report,
+        world_report_lines=world_report_lines,
     )
 
 
@@ -109,48 +123,91 @@ def _draw_hud(
     following: bool,
     font: pygame.font.Font,
     small_font: pygame.font.Font,
+    *,
+    show_timeline: bool,
+    focus_other_id: int | None,
+    show_world_report: bool,
+    world_report_lines: list[str] | None,
 ) -> None:
     width, height = surface.get_size()
-    bar = pygame.Rect(0, height - BAR_HEIGHT, width, BAR_HEIGHT)
-    pygame.draw.rect(surface, colors.PANEL, bar)
-    pygame.draw.line(surface, colors.PANEL_BORDER, (0, height - BAR_HEIGHT), (width, height - BAR_HEIGHT))
-
-    paused = "PAUSED" if world.clock.paused else "PLAY"
-    follow_bit = "   FOLLOWING" if following and selected_id is not None else ""
+    pygame.draw.rect(surface, colors.PANEL, (0, height - BAR_HEIGHT, width, BAR_HEIGHT))
+    pygame.draw.line(
+        surface,
+        colors.PANEL_BORDER,
+        (0, height - BAR_HEIGHT),
+        (width, height - BAR_HEIGHT),
+        1,
+    )
+    paused = "PAUSED" if world.clock.paused else "RUNNING"
+    follow_bit = "  ·  FOLLOW" if following else ""
     status = (
         f"{paused}{follow_bit}   Speed {world.clock.speed:g}x   {world.clock.format_time()}   "
         f"Seed {world.seed}   Citizens {len(world.people)}"
     )
     surface.blit(font.render(status, True, colors.TEXT), (12, height - 36))
     help_text = (
-        "Space pause  |  [ ] or 1-7 speed  |  N new  |  R reseed  |  "
-        "F follow  |  Esc clear  |  Click inspect  |  Drag pan  |  Wheel zoom"
+        "Space pause  |  [ ] speed  |  D/+day  Y/+5d  |  F follow  |  "
+        "T timeline  |  J bond  |  I interesting  |  W report  |  Esc clear"
     )
     surface.blit(small_font.render(help_text, True, colors.MUTED), (12, height - 18))
 
     lines: list[str] | None = None
     if selected_id is not None and selected_id in world.people:
-        lines = _person_inspector_lines(world, world.people[selected_id], following)
+        lines = _person_inspector_lines(
+            world,
+            world.people[selected_id],
+            following,
+            show_timeline=show_timeline,
+            focus_other_id=focus_other_id,
+        )
     elif selected_building_id is not None and selected_building_id in world.buildings:
         lines = _building_inspector_lines(world, selected_building_id)
 
+    if show_world_report and world_report_lines:
+        _draw_panel(surface, world_report_lines, font, small_font, side="left")
+
     if not lines:
         return
+    _draw_panel(surface, lines, font, small_font, side="right", following=following)
+
+
+def _draw_panel(
+    surface: pygame.Surface,
+    lines: list[str],
+    font: pygame.font.Font,
+    small_font: pygame.font.Font,
+    *,
+    side: str,
+    following: bool = False,
+) -> None:
+    width, height = surface.get_size()
+    panel_w = 340 if side == "right" else 320
     panel_h = 20 + len(lines) * 15
-    panel = pygame.Rect(width - 300, 12, 288, min(panel_h, height - BAR_HEIGHT - 24))
+    max_h = height - BAR_HEIGHT - 24
+    if side == "right":
+        panel = pygame.Rect(width - panel_w - 12, 12, panel_w, min(panel_h, max_h))
+    else:
+        panel = pygame.Rect(12, 12, panel_w, min(panel_h, max_h))
     pygame.draw.rect(surface, colors.PANEL, panel)
     pygame.draw.rect(surface, colors.PANEL_BORDER, panel, 1)
     y = panel.y + 10
     for i, line in enumerate(lines):
         f = font if i == 0 else small_font
         color = colors.FOLLOW if (following and i == 0) else (colors.TEXT if i == 0 else colors.MUTED)
-        surface.blit(f.render(line, True, color), (panel.x + 12, y))
+        surface.blit(f.render(line[:48], True, color), (panel.x + 12, y))
         y += 17 if i == 0 else 15
         if y > panel.bottom - 16:
             break
 
 
-def _person_inspector_lines(world: World, person: Person, following: bool) -> list[str]:
+def _person_inspector_lines(
+    world: World,
+    person: Person,
+    following: bool,
+    *,
+    show_timeline: bool = False,
+    focus_other_id: int | None = None,
+) -> list[str]:
     home = world.buildings[person.home_id]
     work = world.buildings[person.work_id]
     t = person.tendencies
@@ -169,14 +226,31 @@ def _person_inspector_lines(world: World, person: Person, following: bool) -> li
     if person.plan_notes:
         lines.append("Today: " + "; ".join(person.plan_notes))
     lines.extend(circumstance_summary_lines(person))
-    lines.extend(social_summary_lines(world, person.id))
-    lines.extend(recent_life_event_lines(person, limit=4))
-    if person.history and not person.life_events:
-        lines.append("History:")
-        for item in person.history[-4:]:
-            lines.append(f"· {item}")
+
+    if focus_other_id is not None and focus_other_id in world.people:
+        lines.append("— Bond focus (J cycles) —")
+        lines.extend(relationship_detail_lines(world, person.id, focus_other_id))
+    else:
+        lines.extend(social_summary_lines(world, person.id))
+        lines.extend(recent_life_event_lines(person, limit=4))
+
+    if show_timeline:
+        entries = citizen_timeline(world, person.id, limit=14)
+        lines.extend(timeline_lines(entries, heading="Life timeline (T):"))
+
     lines.append("Observer only — no orders.")
     return lines
+
+
+def focusable_others(world: World, person_id: int) -> list[int]:
+    """Close then cooled companions — for J cycling."""
+    ids: list[int] = []
+    for oid, _, _ in close_companions(world, person_id, limit=8):
+        ids.append(oid)
+    for oid, _ in stale_companions(world, person_id, limit=8):
+        if oid not in ids:
+            ids.append(oid)
+    return ids
 
 
 def _building_inspector_lines(world: World, building_id: int) -> list[str]:
