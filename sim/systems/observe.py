@@ -117,37 +117,22 @@ def citizen_timeline(world: World, person_id: int, limit: int = 24) -> list[Time
     for event in person.life_events:
         entries.append(TimelineEntry(event.day, event.detail, event.kind.name.lower()))
 
-    # Include first meetings / became-close from bond events involving this person.
+    # First meetings come from bond events; close/reunion already live on life_events.
     for (a, b), rel in world.relationships.items():
         if person_id not in (a, b):
             continue
         other_id = b if a == person_id else a
         other = world.people[other_id]
         for be in rel.bond_events:
-            if be.kind == "first_met":
-                entries.append(
-                    TimelineEntry(
-                        be.day,
-                        f"Met {other.name} {be.detail.replace('First met ', '')}",
-                        "first_met",
-                    )
+            if be.kind != "first_met":
+                continue
+            entries.append(
+                TimelineEntry(
+                    be.day,
+                    f"Met {other.name} {be.detail.replace('First met ', '')}",
+                    "first_met",
                 )
-            elif be.kind == "became_close":
-                entries.append(
-                    TimelineEntry(
-                        be.day,
-                        f"Friendship with {other.name} became close",
-                        "became_close",
-                    )
-                )
-            elif be.kind == "reunited":
-                entries.append(
-                    TimelineEntry(
-                        be.day,
-                        f"Reunited with {other.name}",
-                        "reunited",
-                    )
-                )
+            )
 
     entries.sort(key=lambda e: (e.day, e.text))
     # Deduplicate identical day+text
@@ -267,14 +252,15 @@ def rank_interesting_citizens(world: World, limit: int = 10) -> list[CitizenRank
             for (a, b), rel in world.relationships.items()
             if person.id in (a, b) and rel.times_met > 0
         )
+        # Weight durable life changes above reunion spam in the event log.
         score = (
-            len(life) * 3
+            job_changes * 8
+            + moves * 8
+            + illnesses * 5
             + close * 4
             + cooled * 3
-            + reunions * 2
-            + job_changes * 5
-            + moves * 5
-            + illnesses * 3
+            + min(reunions, 4) * 2
+            + min(len(life), 16)
             + min(n_rel, 12)
         )
         ranked.append(

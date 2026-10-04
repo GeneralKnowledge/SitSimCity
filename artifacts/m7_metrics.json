@@ -1,0 +1,98 @@
+[
+  {
+    "day": 31,
+    "population": 50,
+    "close_edges": 48,
+    "mean_degree": 1.92,
+    "max_degree": 13,
+    "zero_close": 27,
+    "acquaintance_edges": 310,
+    "ever_close_bonds": 63,
+    "reunions": 5,
+    "ge20": 49,
+    "ge50": 0,
+    "eq100": 0,
+    "relationships": 1215,
+    "meetings_total": 49831,
+    "cooled_listings": 16,
+    "active_circumstances": {
+      "SICK": 4
+    },
+    "life_events": {
+      "BECAME_SICK": 22,
+      "RECOVERED": 18,
+      "BECAME_CLOSE": 126,
+      "BECAME_OVERWORKED": 11,
+      "OVERWORK_ENDED": 11,
+      "REUNITED": 10,
+      "BECAME_UNEMPLOYED": 3,
+      "JOB_CHANGED": 3,
+      "MOVED_HOME": 4
+    },
+    "avg_life_events": 4.16
+  },
+  {
+    "day": 101,
+    "population": 50,
+    "close_edges": 100,
+    "mean_degree": 4.0,
+    "max_degree": 12,
+    "zero_close": 10,
+    "acquaintance_edges": 644,
+    "ever_close_bonds": 251,
+    "reunions": 136,
+    "ge20": 115,
+    "ge50": 2,
+    "eq100": 0,
+    "relationships": 1224,
+    "meetings_total": 164134,
+    "cooled_listings": 254,
+    "active_circumstances": {
+      "UNEMPLOYED": 1
+    },
+    "life_events": {
+      "REUNITED": 355,
+      "BECAME_CLOSE": 315,
+      "MOVED_HOME": 20,
+      "BECAME_OVERWORKED": 33,
+      "OVERWORK_ENDED": 33,
+      "BECAME_SICK": 49,
+      "RECOVERED": 52,
+      "BECAME_UNEMPLOYED": 17,
+      "JOB_CHANGED": 16
+    },
+    "avg_life_events": 17.8
+  },
+  {
+    "day": 201,
+    "population": 50,
+    "close_edges": 126,
+    "mean_degree": 5.04,
+    "max_degree": 16,
+    "zero_close": 10,
+    "acquaintance_edges": 824,
+    "ever_close_bonds": 365,
+    "reunions": 277,
+    "ge20": 136,
+    "ge50": 24,
+    "eq100": 0,
+    "relationships": 1225,
+    "meetings_total": 330861,
+    "cooled_listings": 406,
+    "active_circumstances": {
+      "OVERWORKED": 3
+    },
+    "life_events": {
+      "REUNITED": 690,
+      "BECAME_CLOSE": 142,
+      "BECAME_SICK": 58,
+      "RECOVERED": 60,
+      "BECAME_UNEMPLOYED": 18,
+      "JOB_CHANGED": 19,
+      "MOVED_HOME": 18,
+      "BECAME_OVERWORKED": 42,
+      "OVERWORK_ENDED": 41
+    },
+    "avg_life_events": 21.76
+  }
+]
