@@ -271,7 +271,7 @@ def timeline_lines(entries: list[TimelineEntry], heading: str = "Timeline:") -> 
 def relationship_detail_lines(
     world: World, viewer_id: int, other_id: int
 ) -> list[str]:
-    from sim.systems.social import days_since_met, get_relationship, social_meeting_count
+    from sim.systems.social import days_since_met, get_relationship
 
     rel = get_relationship(world, viewer_id, other_id)
     other = world.people[other_id]

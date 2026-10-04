@@ -1,0 +1,502 @@
+
+========================================================================
+SEED 7 · 30d · RANDOM: Tess Jones (id=5) · day 31
+========================================================================
+Age 27 · Mechanic
+Home: 1 Maple Avenue
+Work: Town Ledger
+Circumstances: none
+Today: Visit Iris King
+Social: 4 close · 5 work acquaintances · 0 cooled
+  Close: Eve Green @ cafe  f=25/peak=25  origin=cafe  social=20 work_col=0  last=0d
+  Close: Lara Green @ cafe  f=24/peak=24  origin=cafe  social=15 work_col=0  last=0d
+  Close: Jon Miller @ cafe  f=20/peak=20  origin=cafe  social=16 work_col=0  last=0d
+  Close: Nora Williams @ cafe  f=20/peak=20  origin=cafe  social=15 work_col=0  last=0d
+Durable life events:
+  Day 1: Lives at 1 Maple Avenue
+  Day 1: Works at Town Ledger
+Timeline:
+  Day 1: Lives at 1 Maple Avenue
+  Day 1: Works at Town Ledger
+  Day 10: Met Alice Adams at the pub
+  Day 18: Met Eve Brown at the shop
+  Day 20: Met Xander Hill at the pub
+  Day 26: Reunited with Nora Jones
+  Day 27: Became close with Lara Green
+  Day 29: Met Amy Lewis at the cafe
+  Day 30: Became close with Jon Miller
+  Day 30: Became close with Nora Williams
+[cadence] timeline became_close=3 reunited=1 (caps 3 / 1)
+Bond: Eve Green
+Friendship 25 · peak 25
+Social meetings: 20
+Work colocations: 0 (familiarity only)
+Last seen: today
+Origin: Café
+Social meetings: 20
+Work colocations: 0 (familiarity only; no friendship)
+Frequent social place: Cafe
+Bond timeline:
+  Day 1: First met at the cafe
+  Day 24: Became close at the pub
+  Day 30: Last seen day 30 · friendship 25 (peak 25) · 20 social / 0 work colocations
+
+========================================================================
+SEED 7 · 30d · QUIET: Hugo Adams (id=7) · day 31
+========================================================================
+Age 22 · Clerk
+Home: 3 Oak Street
+Work: Miller & Sons
+Circumstances: none
+Today: Lunch at Market Row; Straight home after work
+Social: 0 close · 5 work acquaintances · 0 cooled
+Durable life events:
+  Day 1: Lives at 3 Oak Street
+  Day 1: Works at Miller & Sons
+Timeline:
+  Day 1: Lives at 3 Oak Street
+  Day 1: Works at Miller & Sons
+  Day 9: Met Leo Nelson at the shop
+  Day 10: Met Clara Green at the shop
+  Day 10: Met Eve Green at the shop
+  Day 30: Met Amy Lewis at the shop
+[cadence] timeline became_close=0 reunited=0 (caps 3 / 1)
+
+========================================================================
+SEED 7 · 100d · RANDOM: Tess Jones (id=5) · day 101
+========================================================================
+Age 27 · Courier
+Home: 1 Maple Avenue
+Work: Harbor Logistics
+Circumstance: UNEMPLOYED until 102 — left Harbor Logistics
+Today: Between jobs
+Social: 1 close · 3 work acquaintances · 5 cooled
+  Close: Yvonne Cook @ cafe  f=35/peak=35  origin=cafe  social=39 work_col=0  last=0d
+  Cooled: Xander Scott  f=25/peak=31
+  Cooled: Rosa Parker  f=26/peak=29
+  Cooled: Piper Walker  f=17/peak=28
+Durable life events:
+  Day 1: Lives at 1 Maple Avenue
+  Day 1: Works at Town Ledger
+  Day 42: Fell ill (2 days)
+  Day 44: Recovered from illness
+  Day 50: Overworked (3 days)
+  Day 53: Workload eased
+  Day 68: Left job at Town Ledger
+  Day 73: Started work at Harbor Logistics (left Town Ledger)
+  Day 96: Left job at Harbor Logistics
+Timeline:
+  Day 20: Met Xander Hill at the pub
+  Day 29: Met Amy Lewis at the cafe
+  Day 42: Fell ill (2 days)
+  Day 44: Recovered from illness
+  Day 50: Overworked (3 days)
+  Day 53: Workload eased
+  Day 66: Met Hugo Adams at the shop
+  Day 68: Left job at Town Ledger
+  Day 73: Started work at Harbor Logistics (left Town Ledger)
+  Day 75: Became close with Gina Brown
+  Day 91: Became close with Piper Adams
+  Day 93: Became close with Jon Green
+  Day 94: Reunited with Nora Jones
+  Day 96: Left job at Harbor Logistics
+[cadence] timeline became_close=3 reunited=1 (caps 3 / 1)
+Bond: Yvonne Cook
+Friendship 35 · peak 35
+Social meetings: 39
+Work colocations: 0 (familiarity only)
+Last seen: today
+Origin: Café
+Social meetings: 39
+Work colocations: 0 (familiarity only; no friendship)
+Frequent social place: Cafe
+Bond timeline:
+  Day 1: First met at the cafe
+  Day 42: Became less available while ill
+  Day 50: Harder to catch after moving neighbourhood
+  Day 68: Became less available after leaving work
+  Day 73: Fewer shared workdays after a job change
+  Day 90: Became close at the pub
+  Day 100: Last seen day 100 · friendship 35 (peak 35) · 39 social / 0 work colocations
+
+========================================================================
+SEED 7 · 100d · QUIET: Eve Wright (id=11) · day 101
+========================================================================
+Age 46 · Mechanic
+Home: 3 Mill Road
+Work: Town Ledger
+Circumstances: none
+Today: Lunch at Market Row; Straight home after work
+Social: 0 close · 5 work acquaintances · 0 cooled
+Durable life events:
+  Day 1: Lives at 3 Mill Road
+  Day 1: Works at Town Ledger
+  Day 6: Fell ill (5 days)
+  Day 11: Recovered from illness
+  Day 39: Fell ill (5 days)
+  Day 44: Recovered from illness
+  Day 62: Overworked (2 days)
+  Day 64: Workload eased
+Timeline:
+  Day 1: Lives at 3 Mill Road
+  Day 1: Works at Town Ledger
+  Day 6: Fell ill (5 days)
+  Day 11: Recovered from illness
+  Day 18: Met Frank Hill at the shop
+  Day 39: Fell ill (5 days)
+  Day 44: Recovered from illness
+  Day 50: Met Ruth Morgan at the shop
+  Day 55: Met Clara Green at the pub
+  Day 55: Met Eve Green at the pub
+  Day 62: Overworked (2 days)
+  Day 64: Workload eased
+[cadence] timeline became_close=0 reunited=0 (caps 3 / 1)
+
+========================================================================
+SEED 1 · 100d · RANDOM: Clara Reed (id=27) · day 101
+========================================================================
+Age 62 · Clerk
+Home: 3 Pine Court
+Work: Miller & Sons
+Circumstances: none
+Today: Straight home after work
+Social: 1 close · 4 work acquaintances · 5 cooled
+  Close: Sam Clark @ cafe  f=25/peak=32  origin=cafe  social=27 work_col=390  last=1d
+  Cooled: Mary King  f=4/peak=32
+  Cooled: Nina Allen  f=0/peak=27
+  Cooled: Paula Bell  f=1/peak=26
+Durable life events:
+  Day 1: Lives at 3 Pine Court
+  Day 1: Works at Westside Offices
+  Day 11: Overworked (3 days)
+  Day 14: Workload eased
+  Day 41: Left job at Westside Offices
+  Day 44: Started work at Miller & Sons (left Westside Offices)
+  Day 69: Fell ill (3 days)
+  Day 72: Recovered from illness
+  Day 81: Overworked (4 days)
+  Day 85: Workload eased
+Timeline:
+  Day 5: Met Dan Scott at the pub
+  Day 5: Met Eve Lewis at the pub
+  Day 11: Overworked (3 days)
+  Day 14: Workload eased
+  Day 41: Left job at Westside Offices
+  Day 44: Started work at Miller & Sons (left Westside Offices)
+  Day 57: Became close with Paula Bell
+  Day 58: Became close with Carol Baker
+  Day 58: Became close with Frank Green
+  Day 69: Fell ill (3 days)
+  Day 72: Recovered from illness
+  Day 74: Reunited with Paula Bell
+  Day 81: Overworked (4 days)
+  Day 85: Workload eased
+[cadence] timeline became_close=3 reunited=1 (caps 3 / 1)
+Bond: Sam Clark
+Friendship 25 · peak 32
+Social meetings: 27
+Work colocations: 390 (familiarity only)
+Last seen: 1 day ago
+Origin: Café
+Social meetings: 27
+Work colocations: 390 (familiarity only; no friendship)
+Frequent social place: Cafe
+Later overlap: shared workplace time
+Bond timeline:
+  Day 3: First met at the cafe
+  Day 57: Became close at the pub
+  Day 69: Became less available while ill
+  Day 92: Became less available after leaving work
+  Day 99: Fewer shared workdays after a job change
+  Day 99: Last seen day 99 · friendship 25 (peak 32) · 27 social / 390 work colocations
+
+========================================================================
+SEED 1 · 100d · QUIET: Elena Harris (id=6) · day 101
+========================================================================
+Age 27 · Clerk
+Home: 3 Maple Avenue
+Work: Miller & Sons
+Circumstances: none
+Today: Straight home after work
+Social: 0 close · 5 work acquaintances · 0 cooled
+Durable life events:
+  Day 1: Lives at 3 Maple Avenue
+  Day 1: Works at Miller & Sons
+  Day 44: Overworked (3 days)
+  Day 47: Workload eased
+  Day 56: Overworked (2 days)
+  Day 58: Workload eased
+  Day 74: Fell ill (4 days)
+  Day 78: Recovered from illness
+Timeline:
+  Day 1: Lives at 3 Maple Avenue
+  Day 1: Works at Miller & Sons
+  Day 13: Met Alice Nelson at the shop
+  Day 44: Overworked (3 days)
+  Day 47: Met Jon Nelson at the pub
+  Day 47: Met Lara Allen at the pub
+  Day 47: Met Nina Adams at the pub
+  Day 47: Workload eased
+  Day 56: Overworked (2 days)
+  Day 58: Workload eased
+  Day 74: Fell ill (4 days)
+  Day 78: Recovered from illness
+[cadence] timeline became_close=0 reunited=0 (caps 3 / 1)
+
+========================================================================
+SEED 13 · 100d · RANDOM: Ben Hill (id=18) · day 101
+========================================================================
+Age 50 · Courier
+Home: 1 Westside Lane
+Work: Miller & Sons
+Circumstance: SICK until 103 — ill at home
+Today: Home sick
+Social: 2 close · 5 work acquaintances · 0 cooled
+  Close: Hank Brown @ pub  f=26/peak=27  origin=work  social=15 work_col=820  last=2d
+  Close: Piper Hill @ pub  f=21/peak=22  origin=work  social=9 work_col=781  last=2d
+Durable life events:
+  Day 1: Lives at 1 Westside Lane
+  Day 1: Works at Miller & Sons
+  Day 25: Fell ill (4 days)
+  Day 29: Recovered from illness
+  Day 83: Overworked (2 days)
+  Day 85: Workload eased
+  Day 99: Fell ill (5 days)
+Timeline:
+  Day 1: Lives at 1 Westside Lane
+  Day 1: Works at Miller & Sons
+  Day 25: Fell ill (4 days)
+  Day 29: Recovered from illness
+  Day 35: Met Carol Williams at the pub
+  Day 36: Met Seth Nelson at the pub
+  Day 38: Met Bob Walker at the cafe
+  Day 63: Became close with Hank Brown
+  Day 74: Met Ruth Reed at the cafe
+  Day 83: Overworked (2 days)
+  Day 85: Workload eased
+  Day 92: Became close with Piper Hill
+  Day 99: Fell ill (5 days)
+[cadence] timeline became_close=2 reunited=0 (caps 3 / 1)
+Bond: Hank Brown
+Friendship 26 · peak 27
+Social meetings: 15
+Work colocations: 820 (familiarity only)
+Last seen: 2 days ago
+Origin: Work
+Social meetings: 15
+Work colocations: 820 (familiarity only; no friendship)
+Frequent social place: Pub
+Currently coworkers
+Bond timeline:
+  Day 1: First met at work
+  Day 25: Became less available while ill
+  Day 63: Became close at the pub
+  Day 98: Last seen day 98 · friendship 26 (peak 27) · 15 social / 820 work colocations
+
+========================================================================
+SEED 13 · 100d · QUIET: Alice Cook (id=2) · day 101
+========================================================================
+Age 32 · Clerk
+Home: 1 Chapel Street
+Work: Westside Offices
+Circumstance: SICK until 101 — ill at home
+Today: Home sick
+Social: 0 close · 1 work acquaintances · 5 cooled
+  Cooled: Amy Taylor  f=25/peak=39
+  Cooled: Alice Bailey  f=33/peak=37
+  Cooled: Vera Allen  f=34/peak=37
+Durable life events:
+  Day 1: Lives at 1 Chapel Street
+  Day 1: Works at Westside Offices
+  Day 26: Fell ill (4 days)
+  Day 30: Recovered from illness
+  Day 98: Fell ill (4 days)
+Timeline:
+  Day 1: Lives at 1 Chapel Street
+  Day 1: Met Bob Walker at work
+  Day 1: Works at Westside Offices
+  Day 2: Met Carol Williams at the shop
+  Day 4: Met Amy Cook at the shop
+  Day 13: Met Vera Brown at the cafe
+  Day 26: Fell ill (4 days)
+  Day 30: Recovered from illness
+  Day 51: Became close with Tina Hall
+  Day 59: Became close with Vera Allen
+  Day 67: Became close with Amy Cook
+  Day 85: Reunited with Amy Cook
+  Day 98: Fell ill (4 days)
+[cadence] timeline became_close=3 reunited=1 (caps 3 / 1)
+
+========================================================================
+SEED 42 · 100d · RANDOM: Rosa Cooper (id=17) · day 101
+========================================================================
+Age 61 · Baker
+Home: 11 Westside Lane
+Work: Miller & Sons
+Circumstances: none
+Today: Lunch at Daily Provisions; Pub: Evening Bell
+Social: 8 close · 1 work acquaintances · 5 cooled
+  Close: Frank Bailey @ shop  f=43/peak=46  origin=shop  social=41 work_col=196  last=0d
+  Close: Piper Brown @ shop  f=38/peak=38  origin=work  social=34 work_col=715  last=0d
+  Close: Jon Allen @ shop  f=33/peak=50  origin=shop  social=46 work_col=0  last=0d
+  Close: Vera Young @ shop  f=32/peak=32  origin=shop  social=28 work_col=392  last=0d
+  Cooled: Eve Wright  f=46/peak=48
+  Cooled: Leo Harris  f=5/peak=37
+  Cooled: Bob Jones  f=17/peak=27
+Durable life events:
+  Day 1: Lives at 11 Westside Lane
+  Day 1: Works at Miller & Sons
+  Day 52: Fell ill (4 days)
+  Day 56: Recovered from illness
+  Day 77: Overworked (4 days)
+  Day 81: Workload eased
+  Day 85: Overworked (4 days)
+  Day 89: Workload eased
+Timeline:
+  Day 3: Met Eve Murphy at the shop
+  Day 15: Met Tina Nelson at the shop
+  Day 17: Met Jack Miller at the pub
+  Day 25: Became close with Jon Allen
+  Day 52: Fell ill (4 days)
+  Day 56: Recovered from illness
+  Day 70: Became close with Dave Clark
+  Day 70: Met Ivy Cook at the pub
+  Day 71: Became close with Kate King
+  Day 77: Overworked (4 days)
+  Day 81: Workload eased
+  Day 82: Reunited with Kate King
+  Day 85: Overworked (4 days)
+  Day 89: Workload eased
+[cadence] timeline became_close=3 reunited=1 (caps 3 / 1)
+Bond: Frank Bailey
+Friendship 43 · peak 46
+Social meetings: 41
+Work colocations: 196 (familiarity only)
+Last seen: today
+Origin: Shop
+Social meetings: 41
+Work colocations: 196 (familiarity only; no friendship)
+Frequent social place: Shop
+Currently coworkers
+Bond timeline:
+  Day 2: First met at the shop
+  Day 35: Became close at the shop
+  Day 52: Became less available while ill
+  Day 75: Became less available after leaving work
+  Day 79: Fewer shared workdays after a job change
+  Day 100: Last seen day 100 · friendship 43 (peak 46) · 41 social / 196 work colocations
+
+========================================================================
+SEED 42 · 100d · QUIET: Nora Wright (id=2) · day 101
+========================================================================
+Age 38 · Courier
+Home: 1 Oak Street
+Work: Westside Offices
+Circumstances: none
+Today: Visit Dave Clark
+Social: 0 close · 5 work acquaintances · 0 cooled
+Durable life events:
+  Day 1: Lives at 1 Oak Street
+  Day 1: Works at Westside Offices
+  Day 15: Fell ill (4 days)
+  Day 19: Recovered from illness
+  Day 30: Fell ill (2 days)
+  Day 32: Recovered from illness
+  Day 36: Overworked (3 days)
+  Day 39: Workload eased
+  Day 53: Overworked (3 days)
+  Day 56: Workload eased
+  Day 64: Fell ill (4 days)
+  Day 68: Recovered from illness
+  Day 92: Overworked (4 days)
+  Day 96: Workload eased
+Timeline:
+  Day 15: Fell ill (4 days)
+  Day 19: Recovered from illness
+  Day 20: Met Sam Hall at the shop
+  Day 30: Fell ill (2 days)
+  Day 32: Recovered from illness
+  Day 36: Overworked (3 days)
+  Day 39: Workload eased
+  Day 53: Overworked (3 days)
+  Day 56: Workload eased
+  Day 57: Met Ivy Cook at the shop
+  Day 64: Fell ill (4 days)
+  Day 68: Recovered from illness
+  Day 92: Overworked (4 days)
+  Day 96: Workload eased
+[cadence] timeline became_close=0 reunited=0 (caps 3 / 1)
+
+========================================================================
+SEED 100 · 100d · RANDOM: Gina Hill (id=18) · day 101
+========================================================================
+Age 57 · Accountant
+Home: 7 River Road
+Work: Brick & Board
+Circumstances: none
+Today: Lunch at Corner Goods; Straight home after work
+Social: 4 close · 4 work acquaintances · 2 cooled
+  Close: Ben Williams @ shop  f=31/peak=31  origin=shop  social=23 work_col=472  last=0d
+  Close: Miles Taylor @ shop  f=29/peak=29  origin=shop  social=29 work_col=447  last=0d
+  Close: Ben Cook @ shop  f=28/peak=28  origin=work  social=24 work_col=546  last=0d
+  Close: Seth Baker @ shop  f=25/peak=26  origin=shop  social=38 work_col=0  last=2d
+  Cooled: Grace Rivera  f=17/peak=23
+  Cooled: Sam Allen  f=17/peak=21
+Durable life events:
+  Day 1: Lives at 7 River Road
+  Day 1: Works at Town Ledger
+  Day 9: Fell ill (5 days)
+  Day 14: Recovered from illness
+  Day 35: Left job at Town Ledger
+  Day 42: Started work at Brick & Board (left Town Ledger)
+  Day 50: Overworked (4 days)
+  Day 54: Workload eased
+  Day 80: Fell ill (3 days)
+  Day 83: Recovered from illness
+Timeline:
+  Day 25: Met Ulysses Cook at work
+  Day 26: Met Ivy Hill at the cafe
+  Day 26: Met Quinn Bell at the cafe
+  Day 35: Left job at Town Ledger
+  Day 42: Started work at Brick & Board (left Town Ledger)
+  Day 50: Overworked (4 days)
+  Day 54: Workload eased
+  Day 68: Became close with Seth Baker
+  Day 71: Became close with Miles Taylor
+  Day 80: Fell ill (3 days)
+  Day 83: Recovered from illness
+  Day 84: Met Ruth Miller at the cafe
+  Day 85: Reunited with Seth Baker
+  Day 96: Became close with Sam Allen
+[cadence] timeline became_close=3 reunited=1 (caps 3 / 1)
+Bond: Ben Williams
+Friendship 31 · peak 31
+Social meetings: 23
+Work colocations: 472 (familiarity only)
+Last seen: today
+Origin: Shop
+Social meetings: 23
+Work colocations: 472 (familiarity only; no friendship)
+Frequent social place: Shop
+Currently coworkers
+Bond timeline:
+  Day 17: First met at the shop
+  Day 56: Became less available while ill
+  Day 68: Became close at the shop
+  Day 100: Last seen day 100 · friendship 31 (peak 31) · 23 social / 472 work colocations
+
+========================================================================
+SUMMARY TABLE
+========================================================================
+seed days role   name               close cool tl_c tl_r jobs move ill
+   7   30 random Tess Jones             4    0    3    1    0    0   0
+   7   30 quiet  Hugo Adams             0    0    0    0    0    0   0
+   7  100 random Tess Jones             1    5    3    1    1    0   1
+   7  100 quiet  Eve Wright             0    0    0    0    0    0   2
+   1  100 random Clara Reed             1    5    3    1    1    0   1
+   1  100 quiet  Elena Harris           0    0    0    0    0    0   1
+  13  100 random Ben Hill               2    0    2    0    0    0   2
+  13  100 quiet  Alice Cook             0    5    3    1    0    0   2
+  42  100 random Rosa Cooper            8    5    3    1    0    0   1
+  42  100 quiet  Nora Wright            0    0    0    0    0    0   3
+ 100  100 random Gina Hill              4    2    3    1    1    0   2
