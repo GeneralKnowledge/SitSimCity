@@ -1,33 +1,44 @@
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from sim.types import (
     ACQUAINTANCE_FAMILIARITY_MIN,
     ACQUAINTANCE_FRIENDSHIP_MAX,
+    AMENITY_CAFE_SHOP_FRIENDSHIP_BASE,
     AMENITY_FAMILIARITY_BUMP,
-    AMENITY_FRIENDSHIP_BUMP,
-    AMENITY_FRIENDSHIP_HIGH_BUMP,
     AMENITY_HIGH_SOCIABILITY,
+    AMENITY_HIGH_SOCIABILITY_BONUS,
+    AMENITY_PUB_FRIENDSHIP_BASE,
     CLOSE_FRIENDSHIP_MIN,
     CLOSE_RECENT_DAYS,
+    COOLING_LAST_SEEN_DAYS,
     FAMILIARITY_MAX,
+    FRIENDSHIP_DECAY_EVER_CLOSE_AFTER_DAYS,
+    FRIENDSHIP_DECAY_EVER_CLOSE_PER_DAY,
     FRIENDSHIP_DECAY_PER_DAY,
+    FRIENDSHIP_DRIP_EVERY_N_SOCIAL,
+    FRIENDSHIP_DRIP_THRESHOLD,
+    FRIENDSHIP_K_EARLY,
+    FRIENDSHIP_K_LATE,
+    FRIENDSHIP_K_VISIT,
     FRIENDSHIP_MAX,
     MINUTES_PER_DAY,
     OTHER_FAMILIARITY_BUMP,
-    OTHER_FRIENDSHIP_BUMP,
+    REACTIVATION_AMENITY_BUMP,
+    REACTIVATION_COOL_FRACTION,
+    REACTIVATION_MIN_DAYS_APART,
+    REACTIVATION_VISIT_BUMP,
     SOCIAL_COOLDOWN_MINUTES,
     STALE_AFTER_DAYS,
     STALE_DAYS_APART,
     STALE_PEAK_MIN,
     VISIT_FAMILIARITY_BUMP,
-    VISIT_FRIENDSHIP_BUMP,
+    VISIT_FRIENDSHIP_BASE,
     WORK_FAMILIARITY_BUMP,
     WORK_FRIENDSHIP_BUMP,
-    WORK_FRIENDSHIP_RARE_BUMP,
-    WORK_RARE_SOCIABILITY,
     Activity,
     Relationship,
 )
@@ -51,6 +62,8 @@ _CONTEXT_PRIORITY = {
     "work": 1,
     "other": 0,
 }
+
+AMENITY_CONTEXT_NAMES = frozenset({"pub", "cafe", "shop", "visit"})
 
 
 def relationship_key(a_id: int, b_id: int) -> tuple[int, int]:
@@ -95,14 +108,22 @@ def process_colocations(world: World) -> None:
 
 
 def apply_relationship_staleness(world: World) -> None:
-    """Decay friendship for pairs who have not met recently. Preserve totals and peak."""
+    """Decay current friendship when pairs stop meeting. Preserve totals and peak."""
     now = world.total_minutes()
     for rel in world.relationships.values():
         if rel.times_met <= 0 or rel.first_met_total_minutes < 0:
             continue
         days_since = (now - rel.last_met_total_minutes) // MINUTES_PER_DAY
-        if days_since >= STALE_AFTER_DAYS:
-            rel.friendship = max(0, rel.friendship - FRIENDSHIP_DECAY_PER_DAY)
+        if days_since < STALE_AFTER_DAYS:
+            continue
+        if (
+            rel.peak_friendship >= CLOSE_FRIENDSHIP_MIN
+            and days_since >= FRIENDSHIP_DECAY_EVER_CLOSE_AFTER_DAYS
+        ):
+            decay = FRIENDSHIP_DECAY_EVER_CLOSE_PER_DAY
+        else:
+            decay = FRIENDSHIP_DECAY_PER_DAY
+        rel.friendship = max(0, rel.friendship - decay)
 
 
 def _maybe_meet(world: World, a_id: int, b_id: int, total_minutes: int) -> None:
@@ -113,7 +134,14 @@ def _maybe_meet(world: World, a_id: int, b_id: int, total_minutes: int) -> None:
     a = world.people[a_id]
     b = world.people[b_id]
     context = _classify_context(a.activity, b.activity)
-    fam_bump, friend_bump = _score_bumps(context, a.tendencies.sociability, b.tendencies.sociability)
+    days_apart = (total_minutes - rel.last_met_total_minutes) // MINUTES_PER_DAY
+    fam_bump, friend_bump = _score_bumps(
+        context,
+        a.tendencies.sociability,
+        b.tendencies.sociability,
+        rel,
+    )
+    friend_bump = _apply_reactivation(rel, context, friend_bump, days_apart)
 
     rel.times_met += 1
     _increment_context_counter(rel, context)
@@ -142,7 +170,6 @@ def _classify_context(a_activity: Activity, b_activity: Activity) -> str:
     if a_ctx in AMENITY_CONTEXT_NAMES and b_ctx in AMENITY_CONTEXT_NAMES:
         if a_ctx == b_ctx:
             return a_ctx
-        # Prefer the more socially meaningful shared reading.
         if _CONTEXT_PRIORITY[a_ctx] >= _CONTEXT_PRIORITY[b_ctx]:
             return a_ctx
         return b_ctx
@@ -151,9 +178,6 @@ def _classify_context(a_activity: Activity, b_activity: Activity) -> str:
     if b_ctx in AMENITY_CONTEXT_NAMES:
         return b_ctx
     return "other"
-
-
-AMENITY_CONTEXT_NAMES = frozenset({"pub", "cafe", "shop", "visit"})
 
 
 def _activity_context(activity: Activity) -> str:
@@ -170,20 +194,73 @@ def _activity_context(activity: Activity) -> str:
     return "other"
 
 
-def _score_bumps(context: str, soc_a: int, soc_b: int) -> tuple[int, int]:
+def _diminish(base: int, friendship: int, k: float) -> int:
+    """gain ≈ base / sqrt(1 + friendship / k), floored at 0."""
+    if base <= 0:
+        return 0
+    return max(0, int(round(base / math.sqrt(1.0 + friendship / k))))
+
+
+def _score_bumps(
+    context: str,
+    soc_a: int,
+    soc_b: int,
+    rel: Relationship,
+) -> tuple[int, int]:
+    """Return (familiarity_bump, friendship_bump) with diminishing friendship gains."""
     if context == "work":
-        friend = WORK_FRIENDSHIP_BUMP
-        if soc_a >= WORK_RARE_SOCIABILITY and soc_b >= WORK_RARE_SOCIABILITY:
-            friend = WORK_FRIENDSHIP_RARE_BUMP
-        return WORK_FAMILIARITY_BUMP, friend
+        return WORK_FAMILIARITY_BUMP, WORK_FRIENDSHIP_BUMP
+    if context == "other":
+        return OTHER_FAMILIARITY_BUMP, 0
     if context == "visit":
-        return VISIT_FAMILIARITY_BUMP, VISIT_FRIENDSHIP_BUMP
+        gain = _diminish(VISIT_FRIENDSHIP_BASE, rel.friendship, FRIENDSHIP_K_VISIT)
+        return VISIT_FAMILIARITY_BUMP, max(1, gain) if rel.friendship < FRIENDSHIP_MAX else 0
+
+    # Amenity: pub / cafe / shop
+    if context == "pub":
+        base = AMENITY_PUB_FRIENDSHIP_BASE
+    else:
+        base = AMENITY_CAFE_SHOP_FRIENDSHIP_BASE
+    if soc_a >= AMENITY_HIGH_SOCIABILITY and soc_b >= AMENITY_HIGH_SOCIABILITY:
+        base += AMENITY_HIGH_SOCIABILITY_BONUS
+
+    social_n = social_meeting_count(rel)
+    if rel.friendship >= FRIENDSHIP_DRIP_THRESHOLD:
+        drip = (
+            1
+            if social_n > 0 and (social_n + 1) % FRIENDSHIP_DRIP_EVERY_N_SOCIAL == 0
+            else 0
+        )
+        return AMENITY_FAMILIARITY_BUMP, drip
+
+    k = FRIENDSHIP_K_EARLY if rel.friendship < CLOSE_FRIENDSHIP_MIN else FRIENDSHIP_K_LATE
+    return AMENITY_FAMILIARITY_BUMP, _diminish(base, rel.friendship, k)
+
+
+def _is_cooled(rel: Relationship) -> bool:
+    if rel.peak_friendship < CLOSE_FRIENDSHIP_MIN:
+        return False
+    return rel.friendship <= rel.peak_friendship * REACTIVATION_COOL_FRACTION
+
+
+def _apply_reactivation(
+    rel: Relationship,
+    context: str,
+    friend_bump: int,
+    days_apart: int,
+) -> int:
+    """After cooling, reunions crawl — they do not snap back to peak."""
+    if friend_bump <= 0:
+        return friend_bump
+    if not _is_cooled(rel):
+        return friend_bump
+    if days_apart < REACTIVATION_MIN_DAYS_APART:
+        return friend_bump
+    if context == "visit":
+        return min(friend_bump, REACTIVATION_VISIT_BUMP)
     if context in {"pub", "cafe", "shop"}:
-        friend = AMENITY_FRIENDSHIP_BUMP
-        if soc_a >= AMENITY_HIGH_SOCIABILITY and soc_b >= AMENITY_HIGH_SOCIABILITY:
-            friend = AMENITY_FRIENDSHIP_HIGH_BUMP
-        return AMENITY_FAMILIARITY_BUMP, friend
-    return OTHER_FAMILIARITY_BUMP, OTHER_FRIENDSHIP_BUMP
+        return REACTIVATION_AMENITY_BUMP
+    return min(friend_bump, REACTIVATION_AMENITY_BUMP)
 
 
 def _increment_context_counter(rel: Relationship, context: str) -> None:
@@ -252,6 +329,12 @@ def dominant_meeting_place(rel: Relationship) -> str | None:
     if count <= 0:
         return None
     return label
+
+
+def days_since_met(world: World, rel: Relationship) -> int:
+    if rel.last_met_total_minutes < 0:
+        return 10_000
+    return max(0, (world.total_minutes() - rel.last_met_total_minutes) // MINUTES_PER_DAY)
 
 
 def _iter_person_relationships(world: World, person_id: int):
@@ -338,31 +421,78 @@ def recurring_social(
     return [(other_id, rel, place) for _, _, other_id, rel, place in scored[:limit]]
 
 
+def _place_phrase(place: str) -> str:
+    if place == "visits":
+        return "on visits"
+    if place == "town":
+        return "around town"
+    return f"at the {place}"
+
+
+def _mostly_place_line(rel: Relationship) -> str:
+    place = dominant_meeting_place(rel)
+    social = social_meeting_count(rel)
+    # Prefer social meetings when describing where they keep meeting.
+    count = social if social > 0 else rel.times_met
+    if place is None:
+        return f"Met {count} times"
+    where = "via visits" if place == "visits" else f"at the {place}"
+    return f"Met {count} times · mostly {where}"
+
+
 def social_summary_lines(world: World, person_id: int) -> list[str]:
-    """Short prose lines for the observer inspector."""
+    """Short prose lines for the observer inspector — life-shaped, not a CRM."""
     lines: list[str] = []
 
-    close = close_companions(world, person_id, limit=3)
+    close = close_companions(world, person_id, limit=2)
     if close:
-        parts = []
-        for other_id, _rel, place in close:
-            parts.append(f"{world.people[other_id].name} ({place})")
+        parts = [f"{world.people[oid].name} ({place})" for oid, _rel, place in close]
         lines.append("Close with: " + ", ".join(parts))
+        # Detail the strongest close companion only.
+        other_id, rel, place = close[0]
+        lines.append(f"  {_mostly_place_line(rel)}")
+        last_seen = days_since_met(world, rel)
+        last_bit = "today" if last_seen == 0 else f"{last_seen} day{'s' if last_seen != 1 else ''} ago"
+        lines.append(
+            f"  Friendship {rel.friendship} · peak {rel.peak_friendship} · last seen {last_bit}"
+        )
+        if rel.peak_friendship > rel.friendship + 5:
+            lines.append("  Used to be closer")
+        elif (
+            last_seen >= COOLING_LAST_SEEN_DAYS
+            and rel.friendship < rel.peak_friendship
+            and rel.peak_friendship >= CLOSE_FRIENDSHIP_MIN
+        ):
+            lines.append("  Cooling")
+        elif (
+            last_seen <= 1
+            and rel.peak_friendship >= CLOSE_FRIENDSHIP_MIN
+            and rel.friendship < rel.peak_friendship * REACTIVATION_COOL_FRACTION + 8
+            and rel.friendship < rel.peak_friendship
+            and rel.friendship >= CLOSE_FRIENDSHIP_MIN - 5
+            and rel.peak_friendship - rel.friendship >= 8
+        ):
+            # Recently met again but still well below a prior peak.
+            lines.append("  Started seeing each other again")
 
     recurring = recurring_social(world, person_id, limit=1)
     if recurring:
         other_id, _rel, place = recurring[0]
-        place_phrase = f"at the {place}" if place != "visits" else "on visits"
-        lines.append(f"Often sees: {world.people[other_id].name} {place_phrase}")
+        lines.append(f"Often sees: {world.people[other_id].name} {_place_phrase(place)}")
 
     work = work_acquaintances(world, person_id, limit=3)
     if work:
         names = ", ".join(world.people[oid].name for oid, _ in work)
         lines.append(f"At work knows: {names}")
 
-    stale = stale_companions(world, person_id, limit=1)
-    if stale:
-        other_id, _rel = stale[0]
-        lines.append(f"Used to see: {world.people[other_id].name}")
+    # Prefer a stale line when we did not already note "used to be closer" on a close friend.
+    if not any(line.strip().startswith("Used to be closer") for line in lines):
+        stale = stale_companions(world, person_id, limit=1)
+        if stale:
+            other_id, rel = stale[0]
+            # Avoid repeating someone already listed as close.
+            close_ids = {oid for oid, _, _ in close}
+            if other_id not in close_ids:
+                lines.append(f"Used to see: {world.people[other_id].name}")
 
     return lines
