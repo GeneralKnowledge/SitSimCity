@@ -2,7 +2,7 @@
 
 A tiny 2D top-down **audience simulator**: watch a seeded town of ~50 citizens live ordinary days.
 
-Current scope: Milestones 1–4 — procedural town, commuting, mundane daily variations (cafe/shop/pub/visits), minimal co-location friendship, and continuous follow mode.
+Current scope: Milestones 1–5 — procedural town, commuting, mundane daily life (cafe/shop/pub/visits), persistent relationship memory (familiarity vs friendship, meeting places, staleness), and continuous follow mode.
 
 Not included yet: romance, crime, murder, marriage, births, economy, quests.
 
@@ -44,7 +44,7 @@ The player is an observer only. There are no orders, objectives, or win conditio
 - Midday cafe/shop trips by some workers
 - After-work pub visits, shopping, or visits to another home
 - Different citizens developing different habits
-- Friendship numbers rising among people who keep meeting
+- Inspect: close companions vs work acquaintances vs bonds that went stale
 - Following one person through their day (`F`)
 
 ## Headless tests

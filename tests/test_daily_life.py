@@ -78,14 +78,18 @@ def test_tendencies_create_different_patterns() -> None:
     assert pub_lovers != len(world.people)
 
 
-def test_colocated_workers_gain_friendship() -> None:
+def test_colocated_workers_gain_familiarity() -> None:
     world = create_world(seed=7, citizen_count=50)
     world.step_minutes(4 * 60)  # into mid-morning work
     assert sum(1 for p in world.people.values() if p.activity == Activity.WORK) >= 40
     world.step_minutes(3 * 60)  # several social cooldown windows at work
     assert world.relationships
-    strongest = max(rel.friendship for rel in world.relationships.values())
-    assert strongest >= 2
+    work_rels = [rel for rel in world.relationships.values() if rel.meetings_work > 0]
+    assert work_rels
+    strongest_familiarity = max(rel.familiarity for rel in work_rels)
+    assert strongest_familiarity >= 2
+    # Workplace presence alone should not mint close friends.
+    assert max(rel.friendship for rel in work_rels) < 20
     met = sum(rel.times_met for rel in world.relationships.values())
     assert met >= 1
 
@@ -98,8 +102,12 @@ def test_daily_life_is_deterministic() -> None:
     assert [(p.activity, round(p.x, 3), round(p.y, 3), p.plan_notes) for p in a.people.values()] == [
         (p.activity, round(p.x, 3), round(p.y, 3), p.plan_notes) for p in b.people.values()
     ]
-    assert {(k, v.friendship, v.times_met) for k, v in a.relationships.items()} == {
-        (k, v.friendship, v.times_met) for k, v in b.relationships.items()
+    assert {
+        (k, v.familiarity, v.friendship, v.times_met, v.meetings_work, v.meetings_pub)
+        for k, v in a.relationships.items()
+    } == {
+        (k, v.familiarity, v.friendship, v.times_met, v.meetings_work, v.meetings_pub)
+        for k, v in b.relationships.items()
     }
 
 

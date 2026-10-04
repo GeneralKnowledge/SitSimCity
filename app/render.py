@@ -4,7 +4,7 @@ import pygame
 
 from app import colors
 from app.camera import Camera
-from sim.systems.social import top_friends
+from sim.systems.social import social_summary_lines
 from sim.types import BuildingKind, Person, TileKind
 from sim.world import World
 
@@ -167,17 +167,11 @@ def _person_inspector_lines(world: World, person: Person, following: bool) -> li
     ]
     if person.plan_notes:
         lines.append("Today: " + "; ".join(person.plan_notes))
-    friends = top_friends(world, person.id, limit=3)
-    if friends:
-        lines.append("Friends:")
-        for name, friendship, times in friends:
-            lines.append(f"· {name}  ({friendship}, met {times})")
+    lines.extend(social_summary_lines(world, person.id))
     if person.history:
         lines.append("History:")
         for item in person.history[-4:]:
             lines.append(f"· {item}")
-    elif person.recent_meetings:
-        lines.append("Recent: " + person.recent_meetings[-1])
     lines.append("Observer only — no orders.")
     return lines
 

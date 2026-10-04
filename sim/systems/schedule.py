@@ -4,7 +4,7 @@ import random
 from typing import TYPE_CHECKING
 
 from sim.rng import make_rng
-from sim.systems.social import get_relationship
+from sim.systems.social import get_relationship, social_meeting_count
 from sim.types import Activity, BuildingKind, Person, ScheduleEntry
 
 if TYPE_CHECKING:
@@ -228,9 +228,10 @@ def _pick_visit_target(world: World, person: Person, rng: random.Random) -> Pers
     weights: list[float] = []
     for other in candidates:
         rel = get_relationship(world, person.id, other.id)
-        weight = 1.0 + rel.friendship * 2.0 + rel.times_met * 0.3
+        # Genuine friendship + social meetings matter; work familiarity does not.
+        weight = 1.0 + rel.friendship * 2.0 + social_meeting_count(rel) * 0.5
         if other.work_id == person.work_id:
-            weight += 6.0
+            weight += 6.0  # mild acquaintance bias, not friendship
         if person.favorite_visit_id == other.id:
             weight += 40.0
         weight += other.tendencies.sociability * 0.05
