@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 
 import pygame
 
@@ -14,6 +15,7 @@ from app.render import (
     pick_building,
     pick_person,
 )
+from sim.rng import make_rng
 from sim.systems.observe import (
     advance_days,
     rank_interesting_citizens,
@@ -22,17 +24,19 @@ from sim.systems.observe import (
 from sim.types import SPEED_STEPS
 from sim.world import World, create_world
 
+DAY_CUE_SECONDS = 2.2
+
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="SitSimCity — tiny autonomous town prototype")
     parser.add_argument("--seed", type=int, default=42, help="Town generation seed")
-    parser.add_argument("--citizens", type=int, default=50, help="Citizen count")
+    parser.add_argument("--citizens", type=int, default=80, help="Citizen count")
     parser.add_argument("--width", type=int, default=1120, help="Window width")
     parser.add_argument("--height", type=int, default=720, help="Window height")
     return parser.parse_args(argv)
 
 
-def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720) -> None:
+def run(seed: int = 42, citizens: int = 80, width: int = 1120, height: int = 720) -> None:
     pygame.init()
     pygame.display.set_caption("SitSimCity — observer prototype")
     screen = pygame.display.set_mode((width, height))
@@ -51,8 +55,11 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
     show_world_report = False
     report_lines: list[str] = []
     interesting_index = 0
+    random_pick_nonce = 0
     dragging = False
     drag_last = (0, 0)
+    last_day = world.clock.day
+    day_cue_until = 0.0
 
     running = True
     while running:
@@ -61,6 +68,7 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
+                prev_day = world.clock.day
                 (
                     world,
                     selected_id,
@@ -72,6 +80,7 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
                     show_world_report,
                     report_lines,
                     interesting_index,
+                    random_pick_nonce,
                 ) = _handle_key(
                     event,
                     world,
@@ -87,7 +96,11 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
                     show_world_report,
                     report_lines,
                     interesting_index,
+                    random_pick_nonce,
                 )
+                if world.clock.day != prev_day:
+                    day_cue_until = time.monotonic() + DAY_CUE_SECONDS
+                    last_day = world.clock.day
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if event.pos[1] < height - BAR_HEIGHT:
@@ -120,14 +133,25 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
         if minutes > 0:
             world.step_minutes(min(minutes, 500))
 
+        if world.clock.day != last_day:
+            day_cue_until = time.monotonic() + DAY_CUE_SECONDS
+            last_day = world.clock.day
+
         if following and selected_id is not None and selected_id in world.people:
             person = world.people[selected_id]
+            # Slightly closer framing while following so the day reads as a life.
+            if camera.zoom < 1.35:
+                camera.zoom = min(1.35, camera.zoom + real_dt * 0.4)
             camera.center_on(
                 person.x * TILE + TILE / 2,
                 person.y * TILE + TILE / 2,
                 width,
                 height - BAR_HEIGHT,
             )
+
+        day_cue_text = None
+        if time.monotonic() < day_cue_until:
+            day_cue_text = f"— Day {world.clock.day} —"
 
         draw_world(
             screen,
@@ -142,6 +166,7 @@ def run(seed: int = 42, citizens: int = 50, width: int = 1120, height: int = 720
             focus_other_id=focus_other_id,
             show_world_report=show_world_report,
             world_report_lines=report_lines,
+            day_cue_text=day_cue_text,
         )
         pygame.display.flip()
 
@@ -163,6 +188,7 @@ def _handle_key(
     show_world_report: bool,
     report_lines: list[str],
     interesting_index: int,
+    random_pick_nonce: int,
 ) -> tuple:
     if event.key == pygame.K_ESCAPE:
         return (
@@ -176,6 +202,7 @@ def _handle_key(
             False,
             [],
             interesting_index,
+            random_pick_nonce,
         )
     if event.key == pygame.K_SPACE:
         world.clock.toggle_pause()
@@ -192,6 +219,7 @@ def _handle_key(
         focus_other_id = None
         show_world_report = False
         report_lines = []
+        show_timeline = False
         _frame_city(camera, world, width, height)
         pygame.display.set_caption(f"SitSimCity — seed {world.seed}")
     elif event.key == pygame.K_r:
@@ -202,6 +230,7 @@ def _handle_key(
         focus_other_id = None
         show_world_report = False
         report_lines = []
+        show_timeline = False
         _frame_city(camera, world, width, height)
     elif event.key == pygame.K_f:
         if selected_id is not None:
@@ -244,6 +273,7 @@ def _handle_key(
             selected_building_id = None
             focus_other_id = None
             following = True
+            show_timeline = False
             person = world.people[selected_id]
             camera.center_on(
                 person.x * TILE + TILE / 2,
@@ -251,7 +281,26 @@ def _handle_key(
                 width,
                 height - BAR_HEIGHT,
             )
-            show_timeline = True
+    elif event.key == pygame.K_o:
+        # Random citizen — inhabit-first: follow on, timeline off.
+        ids = sorted(world.people)
+        if ids:
+            random_pick_nonce += 1
+            rng = make_rng(world.seed, f"ui-random-follow-{random_pick_nonce}")
+            selected_id = rng.choice(ids)
+            selected_building_id = None
+            focus_other_id = None
+            following = True
+            show_timeline = False
+            person = world.people[selected_id]
+            if camera.zoom < 1.2:
+                camera.zoom = 1.2
+            camera.center_on(
+                person.x * TILE + TILE / 2,
+                person.y * TILE + TILE / 2,
+                width,
+                height - BAR_HEIGHT,
+            )
     elif event.key == pygame.K_w:
         show_world_report = not show_world_report
         if show_world_report:
@@ -270,6 +319,7 @@ def _handle_key(
         show_world_report,
         report_lines,
         interesting_index,
+        random_pick_nonce,
     )
 
 

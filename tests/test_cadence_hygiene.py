@@ -116,16 +116,19 @@ def test_work_vs_social_meeting_clarity() -> None:
     rel = get_relationship(world, a_id, b_id)
     # Force some work colocations for display
     rel.meetings_work = 12
+    # Soft default: no raw work-colocation dump in the inhabit inspector.
     lines = origin_summary_lines(world, rel, a_id)
     joined = "\n".join(lines)
     assert "Origin: Café" in joined or "Origin: Cafe" in joined
     assert "Social meetings:" in joined
-    assert "Work colocations:" in joined
-    assert "familiarity only" in joined.lower() or "no friendship" in joined.lower()
+    assert "Work colocations:" not in joined
     detail = "\n".join(relationship_detail_lines(world, a_id, b_id))
     assert "Social meetings:" in detail
-    assert "Work colocations:" in detail
-    assert "Meetings " not in detail.split("Social meetings:")[0] or True
+    assert "Work colocations:" not in detail
+    # Diagnostic path still exposes raw counts when asked.
+    verbose = "\n".join(origin_summary_lines(world, rel, a_id, verbose_work=True))
+    assert "Work colocations:" in verbose
+    assert "familiarity only" in verbose.lower() or "no friendship" in verbose.lower()
 
 
 def test_follow_pick_deterministic() -> None:

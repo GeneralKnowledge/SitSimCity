@@ -165,6 +165,8 @@ class Person:
     move_progress: float = 0.0
     schedule: list[ScheduleEntry] = field(default_factory=list)
     wake_offset_minutes: int = 0
+    # Work shift: "day" (~7–17) or "evening" (~14–22). Assigned at populate.
+    shift: str = "day"
     # Short labels for today's optional plans (for inspect UI / debugging).
     plan_notes: list[str] = field(default_factory=list)
     # Mundane memory: sticky habits + a short discoverable history log.

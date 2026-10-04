@@ -112,7 +112,7 @@ class World:
                 record_arrival(person, goal.activity, target.name)
 
 
-def create_world(seed: int = 42, citizen_count: int = 50) -> World:
+def create_world(seed: int = 42, citizen_count: int = 80) -> World:
     city_rng = make_rng(seed, "city")
     people_rng = make_rng(seed, "people")
     layout: CityLayout = generate_city(city_rng)

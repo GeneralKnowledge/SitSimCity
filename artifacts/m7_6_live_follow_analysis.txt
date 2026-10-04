@@ -1,0 +1,871 @@
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+========================================================================
+SEED 7 · 10d · RANDOM: Tess Jones (id=5) · day 11
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Tess Jones  ·  FOLLOWING
+Mechanic · age 27
+Now: Sleep
+Home · 1 Maple Avenue   Work · Town Ledger
+Today: Cafe: Steam & Crumb
+Often sees: Nora Jones at the pub
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=12; compact lines=7)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Maple Avenue
+  Day 1: Works at Town Ledger
+  Day 9: Met Frank Hill at the pub
+  Day 9: Met Jon Green at the cafe
+  Day 10: Met Alice Adams at the pub
+  Day 10: Met Felix Morgan at the pub
+stats: close=0 cooled=0 durable_life=0 tl_close=0 tl_reunited=0
+
+========================================================================
+SEED 7 · 20d · RANDOM: Tess Jones (id=5) · day 21
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Tess Jones  ·  FOLLOWING
+Mechanic · age 27
+Now: Sleep
+Home · 1 Maple Avenue   Work · Town Ledger
+Today: Lunch at Steam & Crumb; Pub: The Quiet Pint
+Close: Nora Jones (cafe)
+  Origin: Café
+  Frequent social place: Cafe
+Often sees: Eve Green at the cafe
+Recent events:
+  Became close with Nora Jones — day 19
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=24; compact lines=12)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Maple Avenue
+  Day 1: Works at Town Ledger
+  Day 10: Met Alice Adams at the pub
+  Day 10: Met Felix Morgan at the pub
+  Day 18: Met Eve Brown at the shop
+  Day 19: Became close with Nora Jones
+  Day 20: Met Xander Hill at the pub
+stats: close=1 cooled=0 durable_life=0 tl_close=1 tl_reunited=0
+
+========================================================================
+SEED 7 · 30d · RANDOM: Tess Jones (id=5) · day 31
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Tess Jones  ·  FOLLOWING
+Mechanic · age 27
+Now: Sleep
+Home · 1 Maple Avenue   Work · Town Ledger
+Today: Visit Iris King
+Close: Eve Green (cafe), Lara Green (cafe)
+  Origin: Café
+  Frequent social place: Cafe
+Often sees: Gina Brown at the cafe
+Recent events:
+  Became close with Nora Jones — day 19
+  Became close with Eve Green — day 24
+  Became close with Nora Williams — day 30
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=26; compact lines=14)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Maple Avenue
+  Day 1: Works at Town Ledger
+  Day 10: Met Alice Adams at the pub
+  Day 18: Met Eve Brown at the shop
+  Day 20: Met Xander Hill at the pub
+  Day 26: Reunited with Nora Jones
+  Day 27: Became close with Lara Green
+  Day 29: Met Amy Lewis at the cafe
+  Day 30: Became close with Jon Miller
+  Day 30: Became close with Nora Williams
+stats: close=4 cooled=0 durable_life=0 tl_close=3 tl_reunited=1
+
+========================================================================
+SEED 7 · 10d · QUIET: Lara Green (id=1) · day 11
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Lara Green  ·  FOLLOWING
+Accountant · age 37
+Now: Sleep
+Home · 1 Mill Road   Work · Northwind Workshop
+Today: Pub: The Quiet Pint
+Often sees: Eve Green at the cafe
+Recent events:
+  Fell ill (2 days) — day 8
+  Recovered from illness — day 10
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=15; compact lines=10)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Mill Road
+  Day 1: Works at Northwind Workshop
+  Day 8: Fell ill (2 days)
+  Day 10: Met Frank Hill at the shop
+  Day 10: Met Paula Clark at the shop
+  Day 10: Met Ruth Morgan at the cafe
+  Day 10: Met Vera Scott at the shop
+  Day 10: Recovered from illness
+stats: close=0 cooled=0 durable_life=2 tl_close=0 tl_reunited=0
+
+========================================================================
+SEED 7 · 20d · QUIET: Lara Green (id=1) · day 21
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Lara Green  ·  FOLLOWING
+Accountant · age 37
+Now: Sleep
+Home · 1 Mill Road   Work · Northwind Workshop
+Today: Lunch at Steam & Crumb; Pub: The Quiet Pint
+Close: Eve Green (cafe)
+  Origin: Café
+  Frequent social place: Cafe
+Often sees: Tess Jones at the cafe
+Recent events:
+  Fell ill (2 days) — day 8
+  Recovered from illness — day 10
+  Became close with Eve Green — day 16
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=26; compact lines=14)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Mill Road
+  Day 1: Works at Northwind Workshop
+  Day 8: Fell ill (2 days)
+  Day 10: Met Ruth Morgan at the cafe
+  Day 10: Recovered from illness
+  Day 11: Met Leo Rivera at the pub
+  Day 15: Met Jon Hall at the cafe
+  Day 16: Became close with Eve Green
+  Day 16: Met Jon Green at the cafe
+stats: close=1 cooled=0 durable_life=2 tl_close=1 tl_reunited=0
+
+========================================================================
+SEED 7 · 30d · QUIET: Lara Green (id=1) · day 31
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Lara Green  ·  FOLLOWING
+Accountant · age 37
+Now: Sleep
+Home · 1 Mill Road   Work · Northwind Workshop
+Today: Pub: The Quiet Pint
+Close: Eve Green (cafe), Tess Jones (cafe)
+  Origin: Café
+  Frequent social place: Cafe
+Often sees: Nora Hill at the cafe
+Recent events:
+  Fell ill (2 days) — day 8
+  Recovered from illness — day 10
+  Became close with Gina Brown — day 24
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=27; compact lines=14)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Mill Road
+  Day 1: Works at Northwind Workshop
+  Day 8: Fell ill (2 days)
+  Day 10: Met Ruth Morgan at the cafe
+  Day 10: Recovered from illness
+  Day 11: Met Leo Rivera at the pub
+  Day 15: Met Jon Hall at the cafe
+  Day 16: Met Jon Green at the cafe
+  Day 25: Became close with Nora Hill
+  Day 27: Became close with Tess Jones
+  Day 28: Became close with Rosa Parker
+stats: close=4 cooled=0 durable_life=2 tl_close=3 tl_reunited=0
+
+========================================================================
+SEED 7 · 20d · RANDOM: Tess Jones (id=5) · day 21
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Tess Jones  ·  FOLLOWING
+Mechanic · age 27
+Now: Sleep
+Home · 1 Maple Avenue   Work · Town Ledger
+Today: Lunch at Steam & Crumb; Pub: The Quiet Pint
+Close: Nora Jones (cafe)
+  Origin: Café
+  Frequent social place: Cafe
+Often sees: Eve Green at the cafe
+Recent events:
+  Became close with Nora Jones — day 19
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=24; compact lines=12)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Maple Avenue
+  Day 1: Works at Town Ledger
+  Day 10: Met Alice Adams at the pub
+  Day 10: Met Felix Morgan at the pub
+  Day 18: Met Eve Brown at the shop
+  Day 19: Became close with Nora Jones
+  Day 20: Met Xander Hill at the pub
+stats: close=1 cooled=0 durable_life=0 tl_close=1 tl_reunited=0
+
+========================================================================
+SEED 7 · 40d · RANDOM: Tess Jones (id=5) · day 41
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Tess Jones  ·  FOLLOWING
+Mechanic · age 27
+Now: Sleep
+Home · 1 Maple Avenue   Work · Town Ledger
+Today: Lunch at Steam & Crumb; Visit Iris King
+Close: Nora Williams (cafe)
+  Origin: Café
+  Frequent social place: Cafe
+Often sees: Eve Green at the cafe
+Used to see: Piper Walker
+Recent events:
+  Became close with Eve Green — day 24
+  Became close with Nora Williams — day 30
+  Became close with Piper Walker — day 35
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=28; compact lines=15)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Maple Avenue
+  Day 1: Works at Town Ledger
+  Day 10: Met Alice Adams at the pub
+  Day 18: Met Eve Brown at the shop
+  Day 20: Met Xander Hill at the pub
+  Day 26: Reunited with Nora Jones
+  Day 27: Became close with Lara Green
+  Day 29: Met Amy Lewis at the cafe
+  Day 30: Became close with Jon Miller
+  Day 36: Became close with Rosa Parker
+stats: close=1 cooled=5 durable_life=0 tl_close=3 tl_reunited=1
+
+========================================================================
+SEED 7 · 60d · RANDOM: Tess Jones (id=5) · day 61
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Tess Jones  ·  FOLLOWING
+Mechanic · age 27
+Now: Sleep
+Home · 1 Maple Avenue   Work · Town Ledger
+Today: Lunch at Steam & Crumb; Visit Iris King
+Often sees: Eve Green at the cafe
+Used to see: Lara Green
+Recent events:
+  Became close with Piper Walker — day 35
+  Overworked (3 days) — day 50
+  Workload eased — day 53
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=19; compact lines=12)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Maple Avenue
+  Day 1: Works at Town Ledger
+  Day 10: Met Alice Adams at the pub
+  Day 18: Met Eve Brown at the shop
+  Day 20: Met Xander Hill at the pub
+  Day 27: Became close with Lara Green
+  Day 29: Met Amy Lewis at the cafe
+  Day 30: Became close with Jon Miller
+  Day 36: Became close with Rosa Parker
+  Day 42: Fell ill (2 days)
+  Day 44: Recovered from illness
+  Day 50: Overworked (3 days)
+  Day 53: Workload eased
+  Day 58: Reunited with Nora Jones
+stats: close=0 cooled=5 durable_life=4 tl_close=3 tl_reunited=1
+
+========================================================================
+SEED 7 · 20d · QUIET: Lara Green (id=1) · day 21
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Lara Green  ·  FOLLOWING
+Accountant · age 37
+Now: Sleep
+Home · 1 Mill Road   Work · Northwind Workshop
+Today: Lunch at Steam & Crumb; Pub: The Quiet Pint
+Close: Eve Green (cafe)
+  Origin: Café
+  Frequent social place: Cafe
+Often sees: Tess Jones at the cafe
+Recent events:
+  Fell ill (2 days) — day 8
+  Recovered from illness — day 10
+  Became close with Eve Green — day 16
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=26; compact lines=14)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Mill Road
+  Day 1: Works at Northwind Workshop
+  Day 8: Fell ill (2 days)
+  Day 10: Met Ruth Morgan at the cafe
+  Day 10: Recovered from illness
+  Day 11: Met Leo Rivera at the pub
+  Day 15: Met Jon Hall at the cafe
+  Day 16: Became close with Eve Green
+  Day 16: Met Jon Green at the cafe
+stats: close=1 cooled=0 durable_life=2 tl_close=1 tl_reunited=0
+
+========================================================================
+SEED 7 · 40d · QUIET: Lara Green (id=1) · day 41
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Lara Green  ·  FOLLOWING
+Accountant · age 37
+Now: Sleep
+Home · 1 Mill Road   Work · Northwind Workshop
+Today: Straight home after work
+Close: Nora Williams (cafe), Rosa Parker (cafe)
+  Origin: Café
+  Frequent social place: Cafe
+Often sees: Eve Green at the cafe
+Used to see: Eve Green
+Recent events:
+  Fell ill (2 days) — day 8
+  Recovered from illness — day 10
+  Became close with Clara Green — day 39
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=28; compact lines=15)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Mill Road
+  Day 1: Works at Northwind Workshop
+  Day 8: Fell ill (2 days)
+  Day 10: Met Ruth Morgan at the cafe
+  Day 10: Recovered from illness
+  Day 11: Met Leo Rivera at the pub
+  Day 15: Met Jon Hall at the cafe
+  Day 16: Met Jon Green at the cafe
+  Day 25: Became close with Nora Hill
+  Day 34: Became close with Xander Scott
+  Day 40: Became close with Yvonne Cook
+  Day 40: Reunited with Eve Green
+stats: close=7 cooled=2 durable_life=2 tl_close=3 tl_reunited=1
+
+========================================================================
+SEED 7 · 60d · QUIET: Lara Green (id=1) · day 61
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Lara Green  ·  FOLLOWING
+Accountant · age 37
+Now: Sleep
+Home · 3 River Road   Work · Northwind Workshop
+Today: Lunch at Steam & Crumb; Shop: Market Row
+Close: Gina Brown (cafe), Rosa Parker (cafe)
+  Origin: Work
+  Often at work together
+Often sees: Eve Green at the cafe
+Used to see: Tess Jones
+Recent events:
+  Recovered from illness — day 10
+  Moved from 1 Mill Road to 3 River Road — day 44
+  Became close with Piper Walker — day 51
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=31; compact lines=15)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Mill Road
+  Day 1: Works at Northwind Workshop
+  Day 8: Fell ill (2 days)
+  Day 10: Met Ruth Morgan at the cafe
+  Day 10: Recovered from illness
+  Day 11: Met Leo Rivera at the pub
+  Day 15: Met Jon Hall at the cafe
+  Day 16: Met Jon Green at the cafe
+  Day 25: Became close with Nora Hill
+  Day 34: Became close with Xander Scott
+  Day 40: Became close with Yvonne Cook
+  Day 44: Moved from 1 Mill Road to 3 River Road
+  Day 59: Reunited with Nora Hill
+stats: close=8 cooled=3 durable_life=3 tl_close=3 tl_reunited=1
+
+========================================================================
+SEED 1 · 20d · RANDOM: Clara Reed (id=27) · day 21
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Clara Reed  ·  FOLLOWING
+Courier · age 62
+Now: Sleep
+Home · 3 Pine Court   Work · Westside Offices
+Today: Lunch at Steam & Crumb; Cafe: Steam & Crumb
+Often sees: Iris Nelson at the cafe
+Recent events:
+  Overworked (3 days) — day 11
+  Workload eased — day 14
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=15; compact lines=10)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 3 Pine Court
+  Day 1: Works at Westside Offices
+  Day 3: Met Amy Lewis at the cafe
+  Day 3: Met Kate Scott at the cafe
+  Day 5: Met Dan Scott at the pub
+  Day 5: Met Eve Lewis at the pub
+  Day 11: Overworked (3 days)
+  Day 14: Workload eased
+stats: close=0 cooled=0 durable_life=2 tl_close=0 tl_reunited=0
+
+========================================================================
+SEED 1 · 40d · RANDOM: Clara Reed (id=27) · day 41
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Clara Reed  ·  FOLLOWING
+Courier · age 62
+Now: Sleep
+Home · 3 Pine Court   Work · Westside Offices
+Today: Between jobs
+Circumstances:
+  Unemployed — left Westside Offices (until day 43)
+Often sees: Mary King at the cafe
+Recent events:
+  Workload eased — day 14
+  Left job at Westside Offices — day 41
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=18; compact lines=12)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 3 Pine Court
+  Day 1: Works at Westside Offices
+  Day 3: Met Amy Lewis at the cafe
+  Day 3: Met Kate Scott at the cafe
+  Day 5: Met Dan Scott at the pub
+  Day 5: Met Eve Lewis at the pub
+  Day 11: Overworked (3 days)
+  Day 14: Workload eased
+  Day 41: Left job at Westside Offices
+stats: close=0 cooled=0 durable_life=3 tl_close=0 tl_reunited=0
+
+========================================================================
+SEED 1 · 60d · RANDOM: Clara Reed (id=27) · day 61
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Clara Reed  ·  FOLLOWING
+Clerk · age 62
+Now: Sleep
+Home · 3 Pine Court   Work · Miller & Sons
+Today: Lunch at Steam & Crumb; Straight home after work
+Close: Nina Allen (pub), Frank Green (pub)
+  Origin: Café
+  Frequent social place: Pub
+Often sees: Mary King at the cafe
+Used to see: Mary King
+Recent events:
+  Left job at Westside Offices — day 41
+  Started work at Miller & Sons (left Westside Offices) — day 44
+  Became close with Nina Allen — day 55
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=29; compact lines=15)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 3 Pine Court
+  Day 1: Works at Westside Offices
+  Day 3: Met Amy Lewis at the cafe
+  Day 3: Met Kate Scott at the cafe
+  Day 5: Met Dan Scott at the pub
+  Day 5: Met Eve Lewis at the pub
+  Day 11: Overworked (3 days)
+  Day 14: Workload eased
+  Day 41: Left job at Westside Offices
+  Day 44: Started work at Miller & Sons (left Westside Offices)
+  Day 57: Became close with Paula Bell
+  Day 58: Became close with Carol Baker
+  Day 58: Became close with Frank Green
+stats: close=5 cooled=1 durable_life=4 tl_close=3 tl_reunited=0
+
+========================================================================
+SEED 1 · 20d · QUIET: Leo Murphy (id=1) · day 21
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Leo Murphy  ·  FOLLOWING
+Carpenter · age 43
+Now: Sleep
+Home · 1 River Road   Work · Harbor Logistics
+Today: Lunch at Daily Provisions; Straight home after work
+Often sees: Frank Green at the pub
+Recent events:
+  Overworked (4 days) — day 10
+  Workload eased — day 14
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=16; compact lines=10)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 River Road
+  Day 1: Works at Town Ledger
+  Day 5: Left job at Town Ledger
+  Day 9: Started work at Harbor Logistics (left Town Ledger)
+  Day 10: Overworked (4 days)
+  Day 14: Met Xander Wright at the shop
+  Day 14: Workload eased
+  Day 17: Met Dan Wright at the pub
+  Day 17: Met Xander Murphy at the pub
+  Day 20: Met Uma Walker at the pub
+stats: close=0 cooled=0 durable_life=4 tl_close=0 tl_reunited=0
+
+========================================================================
+SEED 1 · 40d · QUIET: Leo Murphy (id=1) · day 41
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Leo Murphy  ·  FOLLOWING
+Carpenter · age 43
+Now: Sleep
+Home · 1 River Road   Work · Harbor Logistics
+Today: Shop: Daily Provisions
+Often sees: Frank Green at the pub
+Recent events:
+  Fell ill (2 days) — day 28
+  Recovered from illness — day 30
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=16; compact lines=10)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 River Road
+  Day 1: Works at Town Ledger
+  Day 5: Left job at Town Ledger
+  Day 9: Started work at Harbor Logistics (left Town Ledger)
+  Day 10: Overworked (4 days)
+  Day 14: Met Xander Wright at the shop
+  Day 14: Workload eased
+  Day 17: Met Xander Murphy at the pub
+  Day 20: Met Uma Walker at the pub
+  Day 28: Fell ill (2 days)
+  Day 30: Recovered from illness
+  Day 35: Met Kate Scott at the pub
+stats: close=0 cooled=0 durable_life=6 tl_close=0 tl_reunited=0
+
+========================================================================
+SEED 1 · 60d · QUIET: Leo Murphy (id=1) · day 61
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Leo Murphy  ·  FOLLOWING
+Carpenter · age 43
+Now: Sleep
+Home · 1 River Road   Work · Harbor Logistics
+Today: Lunch at Daily Provisions; Pub: Evening Bell
+Often sees: Frank Green at the pub
+Recent events:
+  Fell ill (5 days) — day 54
+  Recovered from illness — day 59
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=16; compact lines=10)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 River Road
+  Day 1: Works at Town Ledger
+  Day 5: Left job at Town Ledger
+  Day 9: Started work at Harbor Logistics (left Town Ledger)
+  Day 10: Overworked (4 days)
+  Day 14: Met Xander Wright at the shop
+  Day 14: Workload eased
+  Day 17: Met Xander Murphy at the pub
+  Day 20: Met Uma Walker at the pub
+  Day 28: Fell ill (2 days)
+  Day 30: Recovered from illness
+  Day 35: Met Kate Scott at the pub
+  Day 54: Fell ill (5 days)
+  Day 59: Recovered from illness
+stats: close=0 cooled=0 durable_life=8 tl_close=0 tl_reunited=0
+
+========================================================================
+SEED 13 · 20d · RANDOM: Ben Hill (id=18) · day 21
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Ben Hill  ·  FOLLOWING
+Courier · age 50
+Now: Sleep
+Home · 1 Westside Lane   Work · Miller & Sons
+Today: Straight home after work
+Often sees: Grace Wright at the cafe
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=12; compact lines=7)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Westside Lane
+  Day 1: Works at Miller & Sons
+  Day 11: Met Kate Harris at the cafe
+  Day 14: Met Tina Miller at the cafe
+  Day 17: Met Vera Jones at the cafe
+  Day 18: Met Mary Hall at the shop
+stats: close=0 cooled=0 durable_life=0 tl_close=0 tl_reunited=0
+
+========================================================================
+SEED 13 · 40d · RANDOM: Ben Hill (id=18) · day 41
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Ben Hill  ·  FOLLOWING
+Courier · age 50
+Now: Sleep
+Home · 1 Westside Lane   Work · Miller & Sons
+Today: Straight home after work
+Often sees: Grace Wright at the cafe
+Recent events:
+  Fell ill (4 days) — day 25
+  Recovered from illness — day 29
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=15; compact lines=10)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Westside Lane
+  Day 1: Works at Miller & Sons
+  Day 18: Met Mary Hall at the shop
+  Day 25: Fell ill (4 days)
+  Day 29: Recovered from illness
+  Day 35: Met Carol Williams at the pub
+  Day 36: Met Seth Nelson at the pub
+  Day 38: Met Bob Walker at the cafe
+stats: close=0 cooled=0 durable_life=2 tl_close=0 tl_reunited=0
+
+========================================================================
+SEED 13 · 60d · RANDOM: Ben Hill (id=18) · day 61
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Ben Hill  ·  FOLLOWING
+Courier · age 50
+Now: Sleep
+Home · 1 Westside Lane   Work · Miller & Sons
+Today: Visit Kate Harris
+Often sees: Grace Wright at the cafe
+Recent events:
+  Fell ill (4 days) — day 25
+  Recovered from illness — day 29
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=15; compact lines=10)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Westside Lane
+  Day 1: Works at Miller & Sons
+  Day 18: Met Mary Hall at the shop
+  Day 25: Fell ill (4 days)
+  Day 29: Recovered from illness
+  Day 35: Met Carol Williams at the pub
+  Day 36: Met Seth Nelson at the pub
+  Day 38: Met Bob Walker at the cafe
+stats: close=0 cooled=0 durable_life=2 tl_close=0 tl_reunited=0
+
+========================================================================
+SEED 13 · 20d · QUIET: Bob Wright (id=1) · day 21
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Bob Wright  ·  FOLLOWING
+Accountant · age 40
+Now: Sleep
+Home · 1 Mill Road   Work · Harbor Logistics
+Today: Cafe: Steam & Crumb
+Close: Kate Harris (pub)
+  Origin: Work
+  Often at work together
+Often sees: Amy Reed at the pub
+Recent events:
+  Became close with Kate Harris — day 17
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=25; compact lines=12)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Mill Road
+  Day 1: Works at Harbor Logistics
+  Day 15: Met Seth Nelson at the pub
+  Day 16: Met Amy Cook at the pub
+  Day 17: Became close with Kate Harris
+  Day 17: Met Jack Scott at the pub
+  Day 20: Met Carol Williams at the shop
+stats: close=1 cooled=0 durable_life=0 tl_close=1 tl_reunited=0
+
+========================================================================
+SEED 13 · 40d · QUIET: Bob Wright (id=1) · day 41
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Bob Wright  ·  FOLLOWING
+Accountant · age 40
+Now: Sleep
+Home · 1 Mill Road   Work · Harbor Logistics
+Today: Pub: The Crown & Anchor
+Close: Kate Harris (pub)
+  Origin: Work
+  Often at work together
+Often sees: Vera Allen at the pub
+Used to see: Vera Allen
+Recent events:
+  Became close with Kate Harris — day 17
+  Became close with Vera Allen — day 27
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=28; compact lines=14)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Mill Road
+  Day 1: Works at Harbor Logistics
+  Day 15: Met Seth Nelson at the pub
+  Day 16: Met Amy Cook at the pub
+  Day 17: Became close with Kate Harris
+  Day 17: Met Jack Scott at the pub
+  Day 20: Met Carol Williams at the shop
+  Day 27: Became close with Vera Allen
+  Day 29: Became close with Bob Walker
+  Day 38: Reunited with Bob Walker
+stats: close=1 cooled=2 durable_life=0 tl_close=3 tl_reunited=1
+
+========================================================================
+SEED 13 · 60d · QUIET: Bob Wright (id=1) · day 61
+========================================================================
+--- COMPACT FOLLOW (inhabit) ---
+Bob Wright  ·  FOLLOWING
+Accountant · age 40
+Now: Sleep
+Home · 7 Harbor Street   Work · Harbor Logistics
+Today: Lunch at Steam & Crumb; Straight home after work
+Close: Kate Harris (pub), Bob Walker (pub)
+  Origin: Work
+  Often at work together
+Often sees: Hank Brown at the cafe
+Used to see: Vera Allen
+Recent events:
+  Became close with Kate Harris — day 17
+  Became close with Vera Allen — day 27
+  Moved from 1 Mill Road to 7 Harbor Street — day 55
+Sit with them — T timeline · J bond
+--- FULL INSPECT (for contrast) ---
+(inspect lines=30; compact lines=15)
+compact has Traits: False
+inspect has Traits: True
+compact has Work colocations: False
+inspect bond prose has Work colocations: False
+--- TIMELINE (T) ---
+Life timeline:
+  Day 1: Lives at 1 Mill Road
+  Day 1: Works at Harbor Logistics
+  Day 16: Met Amy Cook at the pub
+  Day 17: Became close with Kate Harris
+  Day 17: Met Jack Scott at the pub
+  Day 20: Met Carol Williams at the shop
+  Day 27: Became close with Vera Allen
+  Day 29: Became close with Bob Walker
+  Day 38: Reunited with Bob Walker
+  Day 52: Met Ben Parker at the cafe
+  Day 55: Moved from 1 Mill Road to 7 Harbor Street
+stats: close=2 cooled=1 durable_life=1 tl_close=3 tl_reunited=1
+
+========================================================================
+SUMMARY
+========================================================================
+SEED 7 · 30d · RANDOM            Tess Jones         compact=14 inspect=26 close=4 cooled=0 durable=0
+SEED 7 · 30d · QUIET             Lara Green         compact=14 inspect=27 close=4 cooled=0 durable=2
+SEED 7 · 60d · RANDOM            Tess Jones         compact=12 inspect=19 close=0 cooled=5 durable=4
+SEED 7 · 60d · QUIET             Lara Green         compact=15 inspect=31 close=8 cooled=3 durable=3
+SEED 1 · 60d · RANDOM            Clara Reed         compact=15 inspect=29 close=5 cooled=1 durable=4
+SEED 1 · 60d · QUIET             Leo Murphy         compact=10 inspect=16 close=0 cooled=0 durable=8
+SEED 13 · 60d · RANDOM           Ben Hill           compact=10 inspect=15 close=0 cooled=0 durable=2
+SEED 13 · 60d · QUIET            Bob Wright         compact=15 inspect=30 close=2 cooled=1 durable=1

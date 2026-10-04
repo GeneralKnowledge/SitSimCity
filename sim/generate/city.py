@@ -48,11 +48,11 @@ def generate_city(rng: random.Random, width: int = 48, height: int = 36) -> City
     )
 
     next_id = 1
-    homes = _place_homes(rng, layout, count=20, start_id=next_id)
+    homes = _place_homes(rng, layout, count=32, start_id=next_id)
     next_id += len(homes)
     _register_buildings(layout, homes)
 
-    workplaces = _place_workplaces(rng, layout, count=6, start_id=next_id)
+    workplaces = _place_workplaces(rng, layout, count=10, start_id=next_id)
     next_id += len(workplaces)
     _register_buildings(layout, workplaces)
 
@@ -170,10 +170,19 @@ def _place_amenities(
     layout: CityLayout,
     start_id: int,
 ) -> list[Building]:
+    pubs = list(names.PUB_NAMES)
+    shops = list(names.SHOP_NAMES)
+    cafes = list(names.CAFE_NAMES)
+    rng.shuffle(pubs)
+    rng.shuffle(shops)
+    rng.shuffle(cafes)
     specs = (
-        (BuildingKind.PUB, rng.choice(names.PUB_NAMES), 20),
-        (BuildingKind.SHOP, rng.choice(names.SHOP_NAMES), 16),
-        (BuildingKind.CAFE, rng.choice(names.CAFE_NAMES), 16),
+        (BuildingKind.PUB, pubs[0], 20),
+        (BuildingKind.PUB, pubs[1 % len(pubs)], 20),
+        (BuildingKind.SHOP, shops[0], 16),
+        (BuildingKind.SHOP, shops[1 % len(shops)], 16),
+        (BuildingKind.CAFE, cafes[0], 16),
+        (BuildingKind.CAFE, cafes[1 % len(cafes)], 16),
         (BuildingKind.POLICE, "Police Station", 12),
         (BuildingKind.HOSPITAL, "Hospital", 12),
     )
