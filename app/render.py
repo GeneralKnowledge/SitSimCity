@@ -10,7 +10,12 @@ from sim.systems.observe import (
     relationship_detail_lines,
     timeline_lines,
 )
-from sim.systems.social import close_companions, social_summary_lines, stale_companions
+from sim.systems.social import (
+    close_companions,
+    recurring_social,
+    social_summary_lines,
+    stale_companions,
+)
 from sim.types import BuildingKind, Person, TileKind
 from sim.world import World
 
@@ -32,6 +37,7 @@ def draw_world(
     focus_other_id: int | None = None,
     show_world_report: bool = False,
     world_report_lines: list[str] | None = None,
+    day_cue_text: str | None = None,
 ) -> None:
     surface.fill(colors.BG)
     map_rect = pygame.Rect(0, 0, surface.get_width(), surface.get_height() - BAR_HEIGHT)
@@ -40,6 +46,8 @@ def draw_world(
     _draw_tiles(map_surf, world, camera)
     _draw_buildings(map_surf, world, camera, small_font, selected_building_id)
     _draw_people(map_surf, world, camera, selected_id, following)
+    if day_cue_text:
+        _draw_day_cue(map_surf, day_cue_text, font)
     _draw_hud(
         surface,
         world,
@@ -115,6 +123,25 @@ def _draw_people(
             pygame.draw.rect(surface, outline, rect.inflate(4, 4), 1)
 
 
+def _draw_day_cue(
+    surface: pygame.Surface, text: str, font: pygame.font.Font
+) -> None:
+    """Soft centered banner when the calendar day rolls while watching."""
+    label = font.render(text, True, colors.DAY_CUE)
+    pad_x, pad_y = 18, 8
+    box = pygame.Rect(
+        0,
+        0,
+        label.get_width() + pad_x * 2,
+        label.get_height() + pad_y * 2,
+    )
+    box.centerx = surface.get_width() // 2
+    box.y = 18
+    pygame.draw.rect(surface, colors.DAY_CUE_DIM, box, border_radius=4)
+    pygame.draw.rect(surface, colors.PANEL_BORDER, box, 1, border_radius=4)
+    surface.blit(label, (box.x + pad_x, box.y + pad_y))
+
+
 def _draw_hud(
     surface: pygame.Surface,
     world: World,
@@ -146,7 +173,7 @@ def _draw_hud(
     )
     surface.blit(font.render(status, True, colors.TEXT), (12, height - 36))
     help_text = (
-        "Space pause  |  [ ] speed  |  D/+day  Y/+5d  |  F follow  |  "
+        "Space pause  |  [ ] speed  |  D/+day  Y/+5d  |  F follow  |  O random  |  "
         "T timeline  |  J bond  |  I interesting  |  W report  |  Esc clear"
     )
     surface.blit(small_font.render(help_text, True, colors.MUTED), (12, height - 18))
@@ -181,7 +208,11 @@ def _draw_panel(
     following: bool = False,
 ) -> None:
     width, height = surface.get_size()
-    panel_w = 340 if side == "right" else 320
+    # Compact follow panel is narrower so the town stays visible.
+    if following and side == "right":
+        panel_w = 280
+    else:
+        panel_w = 340 if side == "right" else 320
     panel_h = 20 + len(lines) * 15
     max_h = height - BAR_HEIGHT - 24
     if side == "right":
@@ -191,10 +222,11 @@ def _draw_panel(
     pygame.draw.rect(surface, colors.PANEL, panel)
     pygame.draw.rect(surface, colors.PANEL_BORDER, panel, 1)
     y = panel.y + 10
+    max_chars = 40 if following and side == "right" else 48
     for i, line in enumerate(lines):
         f = font if i == 0 else small_font
         color = colors.FOLLOW if (following and i == 0) else (colors.TEXT if i == 0 else colors.MUTED)
-        surface.blit(f.render(line[:48], True, color), (panel.x + 12, y))
+        surface.blit(f.render(line[:max_chars], True, color), (panel.x + 12, y))
         y += 17 if i == 0 else 15
         if y > panel.bottom - 16:
             break
@@ -208,6 +240,10 @@ def _person_inspector_lines(
     show_timeline: bool = False,
     focus_other_id: int | None = None,
 ) -> list[str]:
+    # Follow mode defaults to a lean "sit with them" card.
+    if following and focus_other_id is None and not show_timeline:
+        return _compact_follow_lines(world, person)
+
     home = world.buildings[person.home_id]
     work = world.buildings[person.work_id]
     t = person.tendencies
@@ -239,6 +275,55 @@ def _person_inspector_lines(
         lines.extend(timeline_lines(entries, heading="Life timeline (T):"))
 
     lines.append("Observer only — no orders.")
+    return lines
+
+
+def _compact_follow_lines(world: World, person: Person) -> list[str]:
+    """Lean inhabit card: where they are, what's on today, who matters."""
+    home = world.buildings[person.home_id]
+    work = world.buildings[person.work_id]
+    activity = person.activity.name.replace("_", " ").title()
+    lines = [
+        f"{person.name}  ·  FOLLOWING",
+        f"{person.occupation} · age {person.age}",
+        f"Now: {activity}",
+        f"Home · {home.name}   Work · {work.name}",
+    ]
+    if person.plan_notes:
+        lines.append("Today: " + "; ".join(person.plan_notes))
+    lines.extend(circumstance_summary_lines(person))
+    lines.extend(_compact_social_lines(world, person.id))
+    lines.extend(recent_life_event_lines(person, limit=3))
+    lines.append("Sit with them — T timeline · J bond")
+    return lines
+
+
+def _compact_social_lines(world: World, person_id: int) -> list[str]:
+    """Short social snapshot without CRM-style trait dumps."""
+    lines: list[str] = []
+    close = close_companions(world, person_id, limit=2)
+    if close:
+        parts = [f"{world.people[oid].name} ({place})" for oid, _rel, place in close]
+        lines.append("Close: " + ", ".join(parts))
+        _oid, rel, _place = close[0]
+        from sim.systems.observe import origin_summary_lines
+
+        for origin_line in origin_summary_lines(world, rel, person_id)[:3]:
+            # Skip raw-count lines; keep origin + soft work prose.
+            if origin_line.startswith("Social meetings:"):
+                continue
+            lines.append(f"  {origin_line}")
+    recurring = recurring_social(world, person_id, limit=1)
+    if recurring:
+        other_id, _rel, place = recurring[0]
+        where = "via visits" if place == "visits" else f"at the {place}"
+        lines.append(f"Often sees: {world.people[other_id].name} {where}")
+    close_ids = {oid for oid, _, _ in close}
+    stale = stale_companions(world, person_id, limit=1)
+    if stale and stale[0][0] not in close_ids:
+        lines.append(f"Used to see: {world.people[stale[0][0]].name}")
+    if not lines:
+        lines.append("Quiet social life for now")
     return lines
 
 

@@ -92,9 +92,17 @@ def are_coworkers(world: World, a_id: int, b_id: int) -> bool:
 
 
 def origin_summary_lines(
-    world: World, rel: Relationship, viewer_id: int
+    world: World,
+    rel: Relationship,
+    viewer_id: int,
+    *,
+    verbose_work: bool = False,
 ) -> list[str]:
-    """Accurate origin wording — never infer from meeting-count majority."""
+    """Accurate origin wording — never infer from meeting-count majority.
+
+    Default inspector softens work-colocation noise into prose. Pass
+    ``verbose_work=True`` for diagnostic raw counts.
+    """
     from sim.systems.social import dominant_meeting_place, social_meeting_count
 
     lines: list[str] = []
@@ -103,20 +111,28 @@ def origin_summary_lines(
 
     social = social_meeting_count(rel)
     lines.append(f"Social meetings: {social}")
-    lines.append(
-        f"Work colocations: {rel.meetings_work} (familiarity only; no friendship)"
-    )
+
+    other_id = rel.b_id if rel.a_id == viewer_id else rel.a_id
+    coworkers = are_coworkers(world, viewer_id, other_id)
+    if verbose_work and rel.meetings_work > 0:
+        lines.append(
+            f"Work colocations: {rel.meetings_work} (familiarity only; no friendship)"
+        )
+    elif rel.meetings_work > 0:
+        if coworkers:
+            lines.append("Often at work together")
+        elif origin != "work":
+            lines.append("Later overlap: shared workplace time")
+        else:
+            lines.append("Shared workplace time (familiarity)")
 
     place = dominant_meeting_place(rel)
     if place and social > 0:
         place_label = "Visits" if place == "visits" else place.title()
         lines.append(f"Frequent social place: {place_label}")
 
-    other_id = rel.b_id if rel.a_id == viewer_id else rel.a_id
-    if are_coworkers(world, viewer_id, other_id):
+    if coworkers:
         lines.append("Currently coworkers")
-    elif rel.meetings_work > 0 and origin != "work":
-        lines.append("Later overlap: shared workplace time")
 
     return lines
 
@@ -231,13 +247,18 @@ def relationship_timeline(
     if rel.first_met_total_minutes >= 0:
         last_day = minutes_to_day(rel.last_met_total_minutes)
         social = social_meeting_count(rel)
+        work_bit = ""
+        if rel.meetings_work > 0 and are_coworkers(world, a_id, b_id):
+            work_bit = " · often at work together"
+        elif rel.meetings_work > 0:
+            work_bit = " · some workplace overlap"
         entries.append(
             TimelineEntry(
                 last_day,
                 (
                     f"Last seen day {last_day} · friendship {rel.friendship} "
                     f"(peak {rel.peak_friendship}) · "
-                    f"{social} social / {rel.meetings_work} work colocations"
+                    f"{social} social meetings{work_bit}"
                 ),
                 "status",
             )

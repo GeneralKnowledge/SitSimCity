@@ -2,7 +2,7 @@
 
 A tiny 2D top-down **audience simulator**: watch a seeded town of ~50 citizens live ordinary days.
 
-Current scope: Milestones 1–7.5 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, M7 observer polish, and M7.5 cadence hygiene (readable timelines, work vs social meeting clarity, follow playtests).
+Current scope: Milestones 1–7.6 — procedural town, commuting, mundane daily life, M5.5 relationship memory, M6 circumstances/life changes, M7 observer polish, M7.5 cadence hygiene, and M7.6 live-follow comfort (compact follow card, soft work-colocation prose, random pick, day-roll cue).
 
 Not included yet: romance, crime, murder, marriage, births, economy, quests.
 
@@ -30,14 +30,15 @@ python main.py --seed 7 --citizens 50
 | `[` `]` or `1`–`7` | Simulation speed |
 | Click citizen | Inspect |
 | `F` | Toggle continuous follow on selected citizen |
+| `O` | Pick a random citizen and follow (compact inhabit card) |
 | Esc | Clear selection / stop follow |
 | Middle/right drag | Pan (cancels follow) |
 | Mouse wheel | Zoom |
 | `N` | Generate next seed |
 | `R` | Regenerate current seed |
-| `D` | Advance 1 day (pauses) |
-| `Y` | Advance 5 days (pauses) |
-| `T` | Toggle life timeline in inspector |
+| `D` | Advance 1 day (pauses; soft day-roll cue) |
+| `Y` | Advance 5 days (pauses; soft day-roll cue) |
+| `T` | Toggle life timeline in inspector (expands follow card) |
 | `J` | Cycle focused bond (close / cooled) |
 | `I` | Jump to next interesting citizen + follow |
 | `W` | Toggle world diagnostic report |
@@ -53,7 +54,7 @@ The player is an observer only. There are no orders, objectives, or win conditio
 - Inspect: close companions (with meet counts / peak / last seen) vs work acquaintances vs cooled bonds
 - Circumstances: illness, job loss/change, overwork, moving home — and how they thin or shift meetings
 - Life / bond timelines and accurate relationship origin (work vs amenity)
-- Following one person through their day (`F`); day-step with `D` / `Y`
+- Following one person through their day (`F` / `O`); compact inhabit card while following; day-step with `D` / `Y`
 
 ## Headless tests
 
